@@ -31,8 +31,8 @@ add_executable(${CMAKE_PROJECT_NAME} # Source code file
     src/orbit.cpp
     src/booster.h
     src/booster.cpp
-    #src/Rocket.h
-    #src/Rocket.cpp
+    src/Rocket.h
+    src/Rocket.cpp
     src/global.h
     src/GuiManager.h
     src/GuiManager.cpp
