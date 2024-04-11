@@ -3,20 +3,19 @@
 #ifndef Rocket_H
 #define Rocket_H
 
-#include <vector>
+#include <queue>
 #include "global.h"
-
 
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
 protected:
-	double totalWeight; // total weight of the rocket
-	double fuelWeight; // total amount of fuel in the rocket
+	double totalWeight; // total weight of the whole rocket
+	double fuelWeight; // total amount of fuel in the whole rocket
 	double structureWeight;
 
-	virtual double getTotalWeight();
-	virtual double getFuelWeight();
-	virtual double getStructureWeight();
+	virtual double getFuelWeight() = 0;
+	virtual double getStructureWeight() = 0;
+	virtual double getTotalWeight() = 0;
 };
 
 
@@ -30,6 +29,7 @@ private:
 public:
 	RocketStage(double structW, double fuelW);
 	double getFuelWeight();
+	double getStructureWeight();
 	double getTotalWeight();
 };
 
@@ -38,9 +38,9 @@ public:
 class TotalRocket : public Rocket // The total rocket is obviously also a rocket
 {
 private:
-	std::vector<RocketStage*> totalRocketVector; 
-	// ^ A vector that pieces together the individual components of the rocket (Can also hold objects derived from RocketParts class)
-	// Note: Build the rocket from top->bottom
+	std::queue<RocketStage*> totalRocketVector; 
+	// ^ A list that pieces together the individual components of the rocket (Can also hold objects derived from RocketParts class)
+	// Note: Build the rocket from bottom->top
 
 public:
 
@@ -48,6 +48,7 @@ public:
 	double getTotalWeight(); // Returns the total weight of the rocket
 
 	void addToRocket(RocketStage* rocketPart2Add); 
+	void detatchStage(); // Detaches the bottom stage (obviously)
 	double getDeltaV(); // Returns the delta v if you burn all the fuell
 };
 

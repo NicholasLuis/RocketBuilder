@@ -26,23 +26,26 @@ double RocketStage::getFuelWeight()
 {
 	return stageFuelWeight;
 }
+double RocketStage::getStructureWeight()
+{
+	return stageStructureWeight;
+}
+double RocketStage::getTotalWeight()
+{
+	return stageTotalWeight;
+}
 
 // -----TOTAL ROCKET CLASS-----
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
 {
-	totalRocketVector.insert(totalRocketVector.begin(), rocketPart2Add); // Adds a rocket stage to the total rocket
+	totalRocketVector.push(rocketPart2Add); // Adds a stage to the end
 }
-
 double TotalRocket::getDeltaV() // this calculates the delta V if you burn all the fuel
 {
-	double totalRocketWeight = 0;
-	double totalFuelWeight = 0;
-	for (int i = 0; i < totalRocketVector.size(); i++)
-	{
-		totalRocketWeight += totalRocketVector[i]->getStructureWeight();
-
-		totalRocketWeight += totalRocketVector[i]->getFuelWeight();
-		totalFuelWeight += totalRocketVector[i]->getFuelWeight();
-	}
-
+	
+}
+void TotalRocket::detatchStage()
+{
+	// 1. remove stage from the vector using .erase( )
+	// 2. 
 }
