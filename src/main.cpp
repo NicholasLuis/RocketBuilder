@@ -1,17 +1,4 @@
-# include <../src/booster.h>
-# include <../src/orbit.h>
-# include <../src/satellite.h>
-
-# include <GLFW/glfw3.h>
-# include <../lib/imgui/imgui.h>
-# include <../lib/imgui/imgui_impl_glfw.h>
-# include <../lib/imgui/imgui_impl_opengl3.h>
-
-# include <iostream>
-# include <string>
-# include <filesystem>
-# include <optional>
-# include <regex>
+# include <../src/global.h>
 
 namespace fs = std::filesystem;
 
@@ -47,7 +34,7 @@ int main() {
     if (!glfwInit()) return -1;
 
     // Create a windowed mode window and its OpenGL context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "TLE Loader", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(2560, 1440, "TLE Loader", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -58,7 +45,7 @@ int main() {
     // Setup ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -71,6 +58,8 @@ int main() {
     bool show_tle_display = false; // Flag to show TLE data in a popup
     std::vector<fs::path> tleFiles; // List of TLE files found
     std::optional<Satellite> loadedSatellite; // Holds the loaded satellite data
+    ImGuiIO& io = ImGui::GetIO();
+    io.FontGlobalScale = 2.0f;
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -100,17 +89,19 @@ int main() {
             ImGui::OpenPopup("Load TLE File");
             static char buf[1024] = "";
             if (ImGui::BeginPopupModal("Load TLE File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+                ImGui::SetWindowSize("Load TLE File", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
                 ImGui::InputText("File Path", buf, IM_ARRAYSIZE(buf));
                 if (ImGui::Button("Load")) {
                     try {
                         std::string sanitizedPath = sanitizeFilePath(buf);
                         loadedSatellite = Satellite(sanitizedPath); // Directly instantiate
-                        show_load_file_dialog = false;
+                        show_tle_display = true;
                     }
                     catch (const std::exception& e) {
                         std::cerr << "Error: " << e.what() << std::endl;
                         ImGui::OpenPopup("Error Loading File");
                     }
+                    show_load_file_dialog = false;
                     memset(buf, 0, sizeof(buf)); // Clear the buffer after loading
                 }
                 ImGui::SameLine();
@@ -127,38 +118,11 @@ int main() {
             show_sat_file_list = true;
         }
 
-        // Load file dialog
-        if (show_load_file_dialog) {
-            ImGui::OpenPopup("Load TLE File");
-            static char buf[1024] = "";
-            if (ImGui::BeginPopupModal("Load TLE File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-                ImGui::InputText("File Path", buf, IM_ARRAYSIZE(buf));
-                if (ImGui::Button("Load")) {
-                    try {
-                        std::string sanitizedPath = sanitizeFilePath(buf);
-                        loadedSatellite.emplace(sanitizedPath); // Use emplace for direct instantiation
-                        show_tle_display = true;
-                        show_load_file_dialog = false;
-                    }
-                    catch (const std::exception& e) {
-                        std::cerr << "Error: " << e.what() << std::endl;
-                        ImGui::OpenPopup("Error Loading File");
-                    }
-                    memset(buf, 0, sizeof(buf)); // Clear the buffer after loading
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Cancel")) {
-                    show_load_file_dialog = false;
-                    memset(buf, 0, sizeof(buf)); // Clear the buffer on cancel
-                }
-                ImGui::EndPopup();
-            }
-        }
-
         // Satellite file list dialog
         if (show_sat_file_list) {
             ImGui::OpenPopup("Select TLE File");
             if (ImGui::BeginPopupModal("Select TLE File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+                ImGui::SetWindowSize("Select TLE File", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
                 for (auto& file : tleFiles) {
                     if (ImGui::Button(file.filename().string().c_str())) {
                         try {
@@ -184,6 +148,7 @@ int main() {
         if (show_tle_display && loadedSatellite) {
             ImGui::OpenPopup("Satellite TLE");
             if (ImGui::BeginPopupModal("Satellite TLE", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+                ImGui::SetWindowSize("Satellite TLE", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
                 ImGui::Text("Satellite Name: %s", loadedSatellite->getName().c_str());
                 ImGui::Text("Satellite Number: %d", loadedSatellite->getSatelliteNumber());
                 ImGui::Text("Classification: %c", loadedSatellite->getClassification());
