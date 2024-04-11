@@ -15,13 +15,3 @@
 # include <optional>
 # include <regex>
 # include <thread>
-
-// global gravitational constant
-#ifndef G_H
-#define G_H
-
-
-double g = 9.81;
-
-
-#endif

@@ -62,6 +62,7 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 		copyOfRocketQueue.pop(); // Does not delete the objects inside since it only contains pointers
 
 	}
+	return totalDeltaV;
 }
 // OPTIONAL FEATURE: COME BACK TO THIS ONCE WE'RE DONE WITH THE PROJECT
 //double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta V if you only burn a certain amount of fuel

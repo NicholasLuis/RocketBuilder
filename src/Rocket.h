@@ -8,6 +8,8 @@
 #include <cmath> // needed to take natural log for deltaV calculations
 #include <mutex>
 
+double g = 9.81;
+
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
 protected:
