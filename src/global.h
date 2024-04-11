@@ -16,5 +16,12 @@
 # include <regex>
 # include <thread>
 
-// global variable
-# define g 9.81; // default to earth gravity in m/s^2
+// global gravitational constant
+#ifndef G_H
+#define G_H
+
+
+double g = 9.81;
+
+
+#endif
