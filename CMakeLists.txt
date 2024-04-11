@@ -36,6 +36,8 @@ add_executable(${CMAKE_PROJECT_NAME} # Source code file
     src/global.h
     src/GuiManager.h
     src/GuiManager.cpp
+    src/ConsoleManager.h
+    src/ConsoleManager.cpp
     lib/stb_image.h
     lib/tiny_obj_loader.h
     lib/imgui/imconfig.h
