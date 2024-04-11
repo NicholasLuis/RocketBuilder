@@ -12,13 +12,12 @@ double g = 9.81;
 
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
-private:
-	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 protected:
 	double totalMass; // total mass of the whole rocket
 	double fuelMass; // total amount of fuel in the whole rocket
 	double structureMass;
 	std::mutex* printMutex = new std::mutex; // Mutex that controls print to console (a shared resource)
+	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 
 public:
 	virtual double getFuelMass() = 0;
@@ -44,7 +43,7 @@ public:
 	double getStructureMass();
 	double getTotalMass();
 	double getI_sp();
-	virtual void setMutex(std::mutex* mutex);
+	void setMutex(std::mutex* mutex);
 };
 
 
@@ -61,8 +60,8 @@ public:
 	void addToRocket(RocketStage* rocketPart2Add);
 	void detatchStage(); // Detaches the bottom stage (obviously)
 	double getDeltaV(); // Returns the delta v if you burn all the fuel
-	//	double getDeltaV(double fuelToBurn); // Returns the delta v if you burn all the fuel
-	virtual void setMutex(std::mutex* mutex);
+	double getDeltaV(double fuelToBurn); // Returns the delta v if you burn all the fuel
+	void setMutex(std::mutex* mutex);
 
 };
 
