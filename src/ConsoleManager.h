@@ -5,6 +5,8 @@
 #include <thread>
 #include <condition_variable>
 
+#ifndef CONSOLE_MANAGER_H
+#define CONSOLE_MANAGER_H
 class ConsoleManager {
 public:
     static ConsoleManager& getInstance();
@@ -26,3 +28,5 @@ private:
     std::thread worker;
     void processQueue();
 };
+
+#endif

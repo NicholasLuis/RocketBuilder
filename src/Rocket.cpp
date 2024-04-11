@@ -82,8 +82,8 @@ double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta 
 			finalMass += (fuelMassTracker - fuelToBurn); // Adjusts the final weight because not all fuel is burnt
 			logMassRatio = std::log(initialMass / finalMass);
 
-			stageDeltaV += stageDeltaV;
-			break;
+			totalDeltaV += stageDeltaV;
+			return totalDeltaV;
 		}
 		else
 		{
@@ -95,6 +95,7 @@ double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta 
 		// Calculates the delta V of each stage
 		copyOfRocketQueue.pop(); // Does not delete the objects inside since it only contains pointers
 	}
+	return totalDeltaV;
 }
 void TotalRocket::detatchStage()
 {
