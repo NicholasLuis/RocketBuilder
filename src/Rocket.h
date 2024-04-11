@@ -20,7 +20,7 @@ public:
 	virtual double getFuelMass() = 0;
 	virtual double getStructureMss() = 0;
 	virtual double getTotalMass() = 0;
-	virtual void setMutex(std::mutex mutex);
+	virtual void setMutex(std::mutex* mutex) = 0;
 };
 
 
