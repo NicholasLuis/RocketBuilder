@@ -31,6 +31,10 @@ double RocketStage::getI_sp()
 {
 	return I_sp;
 }
+void RocketStage::setMutex(std::mutex* mutex)
+{
+	printMutex = mutex;
+}
 
 // -----TOTAL ROCKET CLASS-----
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
@@ -69,4 +73,8 @@ void TotalRocket::detatchStage()
 	totalRocketQueue.front()->~RocketStage();	// 1. Delete stage object (call de-constructor)
 	totalRocketQueue.pop();						// 2. remove stage from the queue
 
+}
+void TotalRocket::setMutex(std::mutex* mutex)
+{
+	printMutex = mutex;
 }
