@@ -4,7 +4,7 @@
 #define Rocket_H
 
 #include <queue>
-#include "global.h"
+#include <../src/global.h>
 #include <cmath> // needed to take natural log for deltaV calculations
 #include <mutex>
 
@@ -12,6 +12,8 @@ double g = 9.81;
 
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
+private:
+	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 protected:
 	double totalMass; // total mass of the whole rocket
 	double fuelMass; // total amount of fuel in the whole rocket
@@ -23,6 +25,7 @@ public:
 	virtual double getStructureMss() = 0;
 	virtual double getTotalMass() = 0;
 	virtual void setMutex(std::mutex* mutex) = 0;
+	static void log(const std::string& message);    // Log function for clean console output and control of console
 };
 
 
