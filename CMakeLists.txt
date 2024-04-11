@@ -34,6 +34,8 @@ add_executable(${CMAKE_PROJECT_NAME} # Source code file
     #src/Rocket.h
     #src/Rocket.cpp
     src/global.h
+    src/GuiManager.h
+    src/GuiManager.cpp
     lib/stb_image.h
     lib/tiny_obj_loader.h
     lib/imgui/imconfig.h
