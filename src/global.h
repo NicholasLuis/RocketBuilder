@@ -2,6 +2,7 @@
 # include <../src/booster.h>
 # include <../src/orbit.h>
 # include <../src/satellite.h>
+# include <../src/GuiManager.h>
 
 # include <GLFW/glfw3.h>
 # include <../lib/imgui/imgui.h>
@@ -13,6 +14,7 @@
 # include <filesystem>
 # include <optional>
 # include <regex>
+# include <thread>
 
 // global variable
 # define g 9.81; // default to earth gravity in m/s^2
