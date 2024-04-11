@@ -79,3 +79,11 @@ void TotalRocket::setMutex(std::mutex* mutex)
 {
 	printMutex = mutex;
 }
+
+// Function to cleanly control the console_mtx and control the outputs to console
+// rather than having the same two lines dirty up the code.
+std::mutex Rocket::console_mtx;
+void Rocket::log(const std::string& str) {
+	std::lock_guard<std::mutex> lock(console_mtx);
+	ConsoleManager::getInstance().log(str);
+}
