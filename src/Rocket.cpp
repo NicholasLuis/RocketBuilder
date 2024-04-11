@@ -27,7 +27,7 @@ double RocketStage::getTotalMass()
 {
 	return stageTotalMass;
 }
-double RocketStage::getI_sp() 
+double RocketStage::getI_sp()
 {
 	return I_sp;
 }
@@ -46,7 +46,7 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 	// makes a temporary copy of the RocketQueue and pops it so that it doesn't delete the rocket after doing the 
 	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
 	double totalDeltaV = 0, stageDeltaV = 0;
-	
+
 	double stageISP, initialMass, finalMass, logMassRatio;
 
 	for (int i = 0; i < copyOfRocketQueue.size(); i++)
@@ -60,8 +60,9 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 		totalDeltaV += stageDeltaV;
 		// Calculates the delta V of each stage
 		copyOfRocketQueue.pop(); // Does not delete the objects inside since it only contains pointers
-		
+
 	}
+	return totalDeltaV;
 }
 // OPTIONAL FEATURE: COME BACK TO THIS ONCE WE'RE DONE WITH THE PROJECT
 //double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta V if you only burn a certain amount of fuel
@@ -69,7 +70,7 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 //
 //}
 void TotalRocket::detatchStage()
-{	
+{
 	totalRocketQueue.front()->~RocketStage();	// 1. Delete stage object (call de-constructor)
 	totalRocketQueue.pop();						// 2. remove stage from the queue
 
