@@ -109,8 +109,6 @@ void GuiManager::displayGui() {
     ImGui::NewFrame();
 
   
-
-
     // ____________________________________________________________
     // TLE PROGRAM
 
@@ -215,26 +213,58 @@ void GuiManager::displayGui() {
 
     // ______________________________________________________________
     // ROCKET BUILDING PROGRAM
-
-    ImGui::Begin("Rocket Builder");
-
-    if (ImGui::Button("Load Rocket")) {
-        guiState |= LoadRocketDialog; // Set the Load Rocket dialog bit
+    if (ImGui::Begin("Rocket Builder")) {
+        if (ImGui::Button("Load Rocket")) {
+            guiState |= LoadRocketDialog; // Set the Load Rocket dialog bit
+        }
+        if (ImGui::Button("Build from scratch")) {
+            guiState |= RocketBuilderDialog; // Set the Build Rocket dialog bit
+        }
+        ImGui::End(); // Close the main "Rocket Builder" window
     }
-    if (ImGui::Button("Build from scratch")) {
-        guiState |= BuildRocketDialog; // Set the Build Rocket dialog bit
+
+    // Dialog for building or editing the rocket
+    if (guiState & RocketBuilderDialog) {
+        ImGui::Begin("Rocket Builder", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        TotalRocket totalRocket;
+        RocketBuilder(totalRocket); // Function to handle the building of the rocket
+        if (ImGui::Button("Done")) {
+            guiState |= RocketPropertiesDialog; // Open rocket properties dialog
+            guiState &= ~RocketBuilderDialog;  // Close builder dialog
+        }
+        ImGui::End();
     }
 
+    // Dialog for loading a rocket
     if (guiState & LoadRocketDialog) {
-        // LoadRocket logic
-        guiState &= ~LoadRocketDialog; // Clear the bit after use
+        ImGui::Begin("Load Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        // UI elements for loading a rocket could go here
+        if (ImGui::Button("Load")) {
+            // Implement the actual loading logic here
+            guiState &= ~LoadRocketDialog; // Assume load is successful, close this dialog
+        }
+        if (ImGui::Button("Cancel")) {
+            guiState &= ~LoadRocketDialog; // Clear the bit after use
+        }
+        ImGui::End();
     }
 
-    if (guiState & BuildRocketDialog) {
-        RocketBuilder(); // Call the RocketBuilder function
-    } 
-
-    ImGui::End();
+    // Dialog for displaying and managing rocket properties
+    if (guiState & RocketPropertiesDialog) {
+        ImGui::Begin("Rocket Properties", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        // Display properties of the rocket
+        if (ImGui::Button("Edit")) {
+            guiState |= RocketBuilderDialog;  // Reopen rocket builder dialog
+            guiState &= ~RocketPropertiesDialog; // Close properties dialog temporarily
+        }
+        if (ImGui::Button("Destroy")) {
+            while (!totalRocket.getStageQueue().empty()) {
+                totalRocket.detachStage(); // Detach and deconstruct all stages
+            }
+            guiState &= ~RocketPropertiesDialog; // Close properties dialog permanently
+        }
+        ImGui::End();
+    }
 
 
     //______________________________________________________________
@@ -254,45 +284,72 @@ void GuiManager::displayGui() {
 
 }
 
-void GuiManager::RocketBuilder() {
+void GuiManager::RocketBuilder(TotalRocket totalRocket) {
     static int numStages = 1;
     ImGui::InputInt("Number of Stages", &numStages);
     numStages = std::max(1, numStages); // Ensure at least one stage
 
-    static std::vector<RocketStage> stages(numStages);
+    // Ensure the rocket has the correct number of stages
+    while (totalRocket.getStageQueue().size() < numStages) {
+        totalRocket.addToRocket(new RocketStage());
+    }
+    while (totalRocket.getStageQueue().size() > numStages) {
+        totalRocket.detachStage();
+    }
 
     if (ImGui::BeginTabBar("Stages Tab Bar")) {
-        for (int i = 0; i < numStages; ++i) {
+        // Make a copy of the original queue for safe iteration
+        std::queue<RocketStage*> tempQueue = totalRocket.getStageQueue();
+        std::vector<RocketStage*> tempStages; // Temporary storage to preserve stages
+
+        while (!tempQueue.empty()) {
+            tempStages.push_back(tempQueue.front());
+            tempQueue.pop();
+        }
+
+        for (int i = 0; i < tempStages.size(); ++i) {
             std::string tabName = "Stage " + std::to_string(i + 1);
             if (ImGui::BeginTabItem(tabName.c_str())) {
-                static double structMass = stages[i].getStructureMass();
-                static double fuelMass = stages[i].getFuelMass();
-                static double isp = stages[i].getI_sp();
+                double structMass = tempStages[i]->getStructureMass();
+                double fuelMass = tempStages[i]->getFuelMass();
+                double isp = tempStages[i]->getI_sp();
 
-                if (ImGui::InputDouble("Structural Mass (kg)", &structMass)) {
-                    stages[i].setStructureMass(structMass);
+                ImGui::Text("Structural Mass (kg):");
+                if (ImGui::InputDouble("##StructuralMass", &structMass)) {
+                    tempStages[i]->setStructureMass(structMass);
                 }
-                if (ImGui::InputDouble("Fuel Mass (kg)", &fuelMass)) {
-                    stages[i].setFuelMass(fuelMass);
+
+                ImGui::Text("Fuel Mass (kg):");
+                if (ImGui::InputDouble("##FuelMass", &fuelMass)) {
+                    tempStages[i]->setFuelMass(fuelMass);
                 }
-                if (ImGui::InputDouble("Specific Impulse (s)", &isp)) {
-                    stages[i].setI_sp(isp);
+
+                ImGui::Text("Specific Impulse (s):");
+                if (ImGui::InputDouble("##SpecificImpulse", &isp)) {
+                    tempStages[i]->setI_sp(isp);
                 }
+
                 ImGui::EndTabItem();
             }
         }
-        if (ImGui::BeginTabItem("Payload Stage")) {
-            // Define payload stage inputs (e.g., orbital characteristics)
-            static Orbit payloadOrbit;
-            ImGui::InputDouble("Desired Orbit Altitude (km)", &payloadOrbit.altitude);
-            ImGui::InputDouble("Desired Orbit Inclination (degrees)", &payloadOrbit.inclination);
-            ImGui::EndTabItem();
+
+        // Re-populate the original queue with the updated stages
+        while (!totalRocket.getStageQueue().empty()) {
+            totalRocket.detachStage(); // Empty the original queue
         }
+        for (RocketStage* stage : tempStages) {
+            totalRocket.addToRocket(stage);
+        }
+
         ImGui::EndTabBar();
-        if (ImGui::Button("Close")) {
-            guiState &= ~TleDisplayDialog; // Clear the TLE Display dialog bit
-            // Optionally reset loadedSatellite or other states as needed
+    }
+
+    if (ImGui::Button("Cancel")) {
+        // Clear the rocket and reset the dialog bit accordingly
+        while (!totalRocket.getStageQueue().empty()) {
+            totalRocket.detachStage();
         }
+        guiState &= ~RocketBuilderDialog; // Clear the Rocket Builder dialog bit
     }
 }
 

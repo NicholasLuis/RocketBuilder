@@ -47,12 +47,30 @@ void RocketStage::updateTotalMass() {
 	stageTotalMass = stageStructureMass + stageFuelMass;
 }
 
-void RocketStage::setMutex(std::mutex* mutex) {
-	printMutex = mutex;
-}
 
 
 // -----TOTAL ROCKET CLASS-----
+TotalRocket::TotalRocket() {}
+TotalRocket::~TotalRocket() {
+	// Deallocate all stages in the queue
+	while (!totalRocketQueue.empty()) {
+		delete totalRocketQueue.front();  // Delete the object pointed to by the front pointer
+		totalRocketQueue.pop();           // Remove the front element from the queue
+	}
+	// Optionally, deallocate the payload if it exists
+	if (payload) {
+		delete payload;
+		payload = nullptr;
+	}
+}
+
+void TotalRocket::setPayload(RocketStage* payloadStage) {
+	if (payload) {
+		delete payload;  // Ensure we do not leak memory if setting a new payload
+	}
+	payload = payloadStage;
+}
+
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
 {
 	totalRocketQueue.push(rocketPart2Add); // Adds a stage to the end
@@ -113,16 +131,58 @@ double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta 
 	}
 	return totalDeltaV;
 }
-void TotalRocket::detatchStage()
+void TotalRocket::detachStage()
 {
 	totalRocketQueue.front()->~RocketStage();	// 1. Delete stage object (call de-constructor)
 	totalRocketQueue.pop();						// 2. remove stage from the queue
 
 }
-void TotalRocket::setMutex(std::mutex* mutex)
-{
-	printMutex = mutex;
+
+std::queue<RocketStage*> TotalRocket::getStageQueue() const {
+	return totalRocketQueue;
 }
+
+double TotalRocket::getFuelMass() {
+	double totalFuelMass = 0.0;
+	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+
+	while (!tempQueue.empty()) {
+		RocketStage* stage = tempQueue.front();
+		totalFuelMass += stage->getFuelMass();
+		tempQueue.pop();
+	}
+
+	return totalFuelMass;
+}
+
+double TotalRocket::getStructureMass() {
+	double totalStructureMass = 0.0;
+	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+
+	while (!tempQueue.empty()) {
+		RocketStage* stage = tempQueue.front();
+		totalStructureMass += stage->getStructureMass();
+		tempQueue.pop();
+	}
+
+	return totalStructureMass;
+}
+
+double TotalRocket::getTotalMass() {
+	double combinedMass = 0.0;
+	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+
+	while (!tempQueue.empty()) {
+		RocketStage* stage = tempQueue.front();
+		combinedMass += stage->getTotalMass();
+		tempQueue.pop();
+	}
+
+	return combinedMass;
+}
+
+
+
 
 // Function to cleanly control the console_mtx and control the outputs to console
 // rather than having the same two lines dirty up the code.
