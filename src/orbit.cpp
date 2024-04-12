@@ -9,7 +9,9 @@ Orbit::Orbit() // default constructor
 }
 void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending on available delta V
 {
-	
+	double finalVelo = initialVelo + deltaV;
+	double finalRadii = sqrt((v * v) / MU);
+	toPrint = "";
 }
 void Orbit::inclinationPossibilities() // Possible launch inclinations from earth
 {
@@ -35,10 +37,17 @@ void Orbit::inclinationPossibilities(double deltaV, double velocity) // must ent
 	toPrint = "The satellite can change its inclination by " + std::to_string(delta_i) + " degrees";
 }
 
-void Orbit::inclinationPossibilities(double deltaV, double radius) // radius assuming circular orbit
+void Orbit::inclinationPossibilities(double deltaV, double radius, int e) // radius assuming circular orbit
 {
-	double velocity = sqrt(MU / (radius * radius));
-	double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180 / PI);
-	toPrint = "The satellite can change its inclination by " + std::to_string(delta_i) + " degrees";
+	if (e != 0)
+	{
+		toPrint = "The eccentricity must be 0. Solution may not be accurate otherwise";
+	}
+	else
+	{
+		double velocity = sqrt(MU / (radius * radius));
+		double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180 / PI);
+		toPrint = "The satellite can change its inclination by " + std::to_string(delta_i) + " degrees";
+	}
 }
 
