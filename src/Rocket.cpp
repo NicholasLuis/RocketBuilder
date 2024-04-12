@@ -50,7 +50,7 @@ void RocketStage::updateTotalMass() {
 
 
 // -----TOTAL ROCKET CLASS-----
-TotalRocket::TotalRocket() {}
+TotalRocket::TotalRocket() : payload(nullptr) {}
 TotalRocket::~TotalRocket() {
 	// Deallocate all stages in the queue
 	while (!totalRocketQueue.empty()) {
