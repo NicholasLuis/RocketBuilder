@@ -1,18 +1,18 @@
-#AERSP 424 Final Project
+# AERSP 424 Final Project
 
 
-##Initial Setup:
+## Initial Setup:
 1. Download all files
 2. Using CMake, build the solution
 3. Run the program
 
 
-##This program has 2 distinct interactive menus:
+## This program has 2 distinct interactive menus:
 1. Rocket Builder
 2. TLE Loader
 
 
-###ROCKET BUILDER
+### ROCKET BUILDER
 In the Rocket Builder menu, choose to either _Select from one of the Pre-Made Rockets_ or _Build your Own_
 
   1. Premade Rockets:
