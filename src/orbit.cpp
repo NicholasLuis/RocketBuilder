@@ -6,12 +6,13 @@ Orbit::Orbit() // default constructor
 	launchCoords.push_back(28.5744); // Lattitude ( >0 for northern hemisphere and <0 for southern hemisphere)
 	launchCoords.push_back(80.6520); // Longitude
 	initialVelo *= cos(launchCoords[0]); // Adjusts initial velocity depending on the lattitude
+	toPrint = "Nothing to print yet";
 }
 void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending on available delta V
 {
 	double finalVelo = initialVelo + deltaV;
 	double finalRadii = sqrt((finalVelo * finalVelo) / MU);
-	toPrint = "";
+	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalRadii - R_Earth);
 }
 void Orbit::inclinationPossibilities() // Possible launch inclinations from earth
 {
@@ -29,6 +30,7 @@ void Orbit::inclinationPossibilities() // Possible launch inclinations from eart
 	{
 		toPrint = "The rocket can only launch into an inclination of 0 degrees or 180 degrees";
 	}
+	print(toPrint);
 }
 
 void Orbit::inclinationPossibilities(double deltaV, double velocity) // must enter velocity as it crosses the equitorial plane
@@ -49,5 +51,11 @@ void Orbit::inclinationPossibilities(double deltaV, double radius, int e) // rad
 		double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180 / PI);
 		toPrint = "The satellite can change its inclination by " + std::to_string(delta_i) + " degrees";
 	}
+	print(toPrint);
 }
 
+void Orbit::print(const std::string& str) {
+	std::cout << str <<std::endl;
+	//std::lock_guard<std::mutex> lock(console_mtx);
+	//ConsoleManager::getInstance().log(str);
+}
