@@ -13,10 +13,7 @@ class Satellite {
 public:
     Satellite(const std::string& filePath);
 
-    void displayTLE() const;
     std::string getName() const { return name; }
-    std::string getFormattedTLE() const;
-
     int getSatelliteNumber() const { return satellite_number; }
     char getClassification() const { return classification; }
     std::string getLaunchYear() const { return launch_year; }

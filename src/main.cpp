@@ -8,11 +8,11 @@ int main() {
     GuiManager guiManager;
     ConsoleManager::getInstance().run();
     guiManager.start();
-
+  
     std::thread t1([] { log("Hello from T1"); });
     std::thread t2([] { log("Hello from T2"); });
     std::thread t3([] { log("Hello from T3"); });
-    std::thread t4([] { log("Hello from T4"); });
+    std::thread t4([] { log("Hello from T4"); }); 
     t1.join();
     t2.join();
     t3.join();

@@ -1,19 +1,18 @@
 #include "Rocket.h"
 
+// -------ROCKET CLASS--------
+Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};
+Rocket::~Rocket() {};
+
 // -----TOTAL STAGE CLASS-----
-RocketStage::RocketStage(double structW, double fuelW, double specImp)
-{
-	stageStructureMass = structW;
-	stageFuelMass = fuelW;
-	stageTotalMass = stageStructureMass + stageFuelMass;
-
-	totalMass += stageTotalMass;
-
-	I_sp = specImp;
+RocketStage::RocketStage() {};
+RocketStage::RocketStage(double structW = 0.0, double fuelW = 0.0, double specImp = 0.0)
+	: stageStructureMass(structW), stageFuelMass(fuelW), I_sp(specImp), stageTotalMass(0.0) {
+	updateTotalMass();
 }
 RocketStage::~RocketStage()
 {
-	totalMass -= stageStructureMass; // Assumes that all the fuel has been spent before stage detaches
+	Rocket::totalMass -= stageStructureMass; // Assumes that all the fuel has been spent before stage detaches
 }
 double RocketStage::getFuelMass()
 {
@@ -31,15 +30,34 @@ double RocketStage::getI_sp()
 {
 	return I_sp;
 }
-void RocketStage::setMutex(std::mutex* mutex)
-{
+
+void RocketStage::setStructureMass(double mass) {
+		stageStructureMass = mass;
+		updateTotalMass();
+}
+
+void RocketStage::setFuelMass(double mass) {
+	stageFuelMass = mass;
+	updateTotalMass();
+}
+
+void RocketStage::setI_sp(double isp) { I_sp = isp; }
+
+void RocketStage::updateTotalMass() {
+	stageTotalMass = stageStructureMass + stageFuelMass;
+}
+
+void RocketStage::setMutex(std::mutex* mutex) {
 	printMutex = mutex;
 }
+
 
 // -----TOTAL ROCKET CLASS-----
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
 {
 	totalRocketQueue.push(rocketPart2Add); // Adds a stage to the end
+	std::string toPrint = "The rocket now has " + std::to_string( totalRocketQueue.size() ) + " stages";
+	TotalRocket::log(toPrint);
 }
 double TotalRocket::getDeltaV() // this calculates the delta V if you burn all the fuel from all of the remaing stages
 {
@@ -55,7 +73,7 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 		initialMass = copyOfRocketQueue.front()->getTotalMass();
 		finalMass = copyOfRocketQueue.front()->getStructureMass(); // final mass of the stage is just the structure (all fuel burnt)
 		logMassRatio = std::log(initialMass / finalMass);
-		stageDeltaV = stageISP * g * logMassRatio;
+		stageDeltaV = stageISP * 9.80665 * logMassRatio;
 
 		totalDeltaV += stageDeltaV;
 		// Calculates the delta V of each stage
@@ -88,7 +106,7 @@ double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta 
 		else
 		{
 			logMassRatio = std::log(initialMass / finalMass);
-			stageDeltaV = stageISP * g * logMassRatio;
+			stageDeltaV = stageISP * 9.80665 * logMassRatio;
 
 			totalDeltaV += stageDeltaV;
 		}
