@@ -24,5 +24,30 @@ int main() {
 
     guiManager.stop();
     ConsoleManager::getInstance().stop();
+
+    // example rocket for Falcon 9
+    std::vector<RocketStage*>rocket_stages;
+
+    rocket_stages.push_back(new RocketStage(25600, 395700, 283)); //stage 1 of the rocket 
+    rocket_stages.push_back(new RocketStage(3900, 92620, 348)); // satge 2 of the rocket 
+
+    TotalRocket totalRocket;
+
+    // Add each RocketStage object to TotalRocket
+    for (auto stage : rocket_stages) {
+        totalRocket.addToRocket(stage);
+    }
+
+    // Calculate total deltaV of the rocket
+    double totalDeltaV = totalRocket.getDeltaV();
+    std::cout << "Total DeltaV of the rocket: " << totalDeltaV << " m/s" << std::endl;
+
+    // Clean up memory by deleting the RocketStage objects
+    for (auto stage : rocket_stages) {
+        delete stage;
+    }
+
+
+
     return 0;
 }
