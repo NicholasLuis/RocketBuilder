@@ -24,3 +24,13 @@ In the Rocket Builder menu, choose to either _Select from one of the Pre-Made Ro
      b. Enter the values for the structural mass, fuel mass, and the engine's specific impulse for every stage
        _Tip: You can simulate the final payload by including a fuel weight of 0 in the final stage_
      c. Using the delta V information from the rocket (or the remaining stages), the computer will determine some potential orbital maneuvers
+
+
+### TLE Loader
+In TLE loader, choose either from _Load TLE from File_ or _Select from available TLE data_
+
+  1. Loading TLE from file
+     a. In the dialogue box, enter the full filepath and name of the TLE file to import into the program
+     
+  2. Select from available TLE data
+     a. Choose from one of the example data files to see the data associated with that satellite
