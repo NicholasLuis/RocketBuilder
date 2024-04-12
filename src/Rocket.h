@@ -13,9 +13,9 @@ double g = 9.81;
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
 protected:
-	double totalMass; // total mass of the whole rocket
-	double fuelMass; // total amount of fuel in the whole rocket
-	double structureMass;
+	double totalMass=0; // total mass of the whole rocket
+	double fuelMass=0; // total amount of fuel in the whole rocket
+	double structureMass=0;
 	std::mutex* printMutex = new std::mutex; // Mutex that controls print to console (a shared resource)
 	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 
