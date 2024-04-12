@@ -10,7 +10,7 @@ Orbit::Orbit() // default constructor
 void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending on available delta V
 {
 	double finalVelo = initialVelo + deltaV;
-	double finalRadii = sqrt((v * v) / MU);
+	double finalRadii = sqrt((finalVelo * finalVelo) / MU);
 	toPrint = "";
 }
 void Orbit::inclinationPossibilities() // Possible launch inclinations from earth
