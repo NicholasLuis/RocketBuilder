@@ -13,6 +13,7 @@ public:
     void start();
     void stop();
     void run();
+    void RocketBuilder();
     bool isRunning() const {
         return running;
     }
@@ -24,9 +25,11 @@ private:
 
     // GUI state
     enum DialogFlags {
-        LoadFileDialog = 1 << 0, // Bit 0
+        LoadFileDialog = 1 << 0,    // Bit 0
         SatFileListDialog = 1 << 1, // Bit 1
-        TleDisplayDialog = 1 << 2  // Bit 2
+        TleDisplayDialog = 1 << 2,  // Bit 2
+        LoadRocketDialog = 1 << 3,  // Bit 3
+        BuildRocketDialog = 1 << 4  // Bit 4
     };
     int guiState = 0;
 

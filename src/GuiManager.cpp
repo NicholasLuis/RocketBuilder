@@ -36,7 +36,7 @@ void GuiManager::initializeGui() {
     if (!glfwInit()) return;
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(2560, 1440, "TLE Loader", NULL, NULL);
+    window = glfwCreateWindow(2560, 1440, "SAT Launcher", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return;
@@ -108,12 +108,14 @@ void GuiManager::displayGui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Main window code
-    ImGui::Begin("TLE Loader");
+  
 
 
     // ____________________________________________________________
-    // GUI PROGRAM STARTS HERE
+    // TLE PROGRAM
+
+      // Main window code
+    ImGui::Begin("TLE Loader");
 
     if (ImGui::Button("Load TLE from file")) {
         guiState |= LoadFileDialog; // Set the Load File dialog bit
@@ -208,11 +210,36 @@ void GuiManager::displayGui() {
         }
     }
 
+    ImGui::End();
+
+
     // ______________________________________________________________
-    // GUI PROGRAM ENDSS HERE
+    // ROCKET BUILDING PROGRAM
+
+    ImGui::Begin("Rocket Builder");
+
+    if (ImGui::Button("Load Rocket")) {
+        guiState |= LoadRocketDialog; // Set the Load Rocket dialog bit
+    }
+    if (ImGui::Button("Build from scratch")) {
+        guiState |= BuildRocketDialog; // Set the Build Rocket dialog bit
+    }
+
+    if (guiState & LoadRocketDialog) {
+        // LoadRocket logic
+        guiState &= ~LoadRocketDialog; // Clear the bit after use
+    }
+
+    if (guiState & BuildRocketDialog) {
+        RocketBuilder(); // Call the RocketBuilder function
+    } 
 
     ImGui::End();
 
+
+    //______________________________________________________________
+    // ENDING
+    
     // Rendering
     ImGui::Render();
     int display_w, display_h;
@@ -226,4 +253,44 @@ void GuiManager::displayGui() {
     glfwSwapBuffers(window);
 
 }
+
+void GuiManager::RocketBuilder() {
+    static int numStages = 1;
+    ImGui::InputInt("Number of Stages", &numStages);
+    numStages = std::max(1, numStages); // Ensure at least one stage
+
+    static std::vector<RocketStage> stages(numStages);
+
+    if (ImGui::BeginTabBar("Stages Tab Bar")) {
+        for (int i = 0; i < numStages; ++i) {
+            std::string tabName = "Stage " + std::to_string(i + 1);
+            if (ImGui::BeginTabItem(tabName.c_str())) {
+                static double structMass = stages[i].getStructureMass();
+                static double fuelMass = stages[i].getFuelMass();
+                static double isp = stages[i].getI_sp();
+
+                if (ImGui::InputDouble("Structural Mass (kg)", &structMass)) {
+                    stages[i].setStructureMass(structMass);
+                }
+                if (ImGui::InputDouble("Fuel Mass (kg)", &fuelMass)) {
+                    stages[i].setFuelMass(fuelMass);
+                }
+                if (ImGui::InputDouble("Specific Impulse (s)", &isp)) {
+                    stages[i].setI_sp(isp);
+                }
+                ImGui::EndTabItem();
+            }
+        }
+        if (ImGui::BeginTabItem("Payload Stage")) {
+            // Define payload stage inputs (e.g., orbital characteristics)
+            static Orbit payloadOrbit;
+            ImGui::InputDouble("Desired Orbit Altitude (km)", &payloadOrbit.altitude);
+            ImGui::InputDouble("Desired Orbit Inclination (degrees)", &payloadOrbit.inclination);
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+        guiState &= ~BuildRocketDialog; // Clear the bit after use
+    }
+}
+
 
