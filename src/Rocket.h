@@ -67,7 +67,8 @@ private:
 	// Note: Build the rocket from bottom->top
 
 public:
-
+	TotalRocket(); // Constructor
+	~TotalRocket(); // De-constructor
 	void addToRocket(RocketStage* rocketPart2Add);
 	void detatchStage(); // Detaches the bottom stage (obviously)
 	double getDeltaV(); // Returns the delta v if you burn all the fuel

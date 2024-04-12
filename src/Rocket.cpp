@@ -53,6 +53,18 @@ void RocketStage::setMutex(std::mutex* mutex) {
 
 
 // -----TOTAL ROCKET CLASS-----
+TotalRocket::TotalRocket() // Default constructor
+{
+	Rocket::log("A rocket is being created");
+}
+TotalRocket::~TotalRocket()
+{
+	for (int i = 0; i < totalRocketQueue.size(); i++)
+	{
+		TotalRocket::detatchStage(); // delets pointers
+	}
+}
+
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
 {
 	totalRocketQueue.push(rocketPart2Add); // Adds a stage to the end
