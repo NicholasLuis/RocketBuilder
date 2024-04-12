@@ -218,9 +218,6 @@ void GuiManager::displayGui() {
 
     ImGui::Begin("Rocket Builder");
 
-    if (ImGui::Button("Load Rocket")) {
-        guiState |= LoadRocketDialog; // Set the Load Rocket dialog bit
-    }
     if (ImGui::Button("Build from scratch")) {
         guiState |= BuildRocketDialog; // Set the Build Rocket dialog bit
     }
@@ -233,6 +230,35 @@ void GuiManager::displayGui() {
     if (guiState & BuildRocketDialog) {
         RocketBuilder(); // Call the RocketBuilder function
     } 
+    if (ImGui::Button("Select from the pre-made rockets")) {
+        tleFiles = listTLEFiles("./premadeRockets"); // Assuming the TLE files are stored in "./data"
+        guiState |= SatFileListDialog; // Set the Sat File List dialog bit
+    }
+    // Satellite file list dialog
+    if (guiState & LoadRocketDialog) {
+        ImGui::OpenPopup("Select .txt File");
+        if (ImGui::BeginPopupModal("Select .txt File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::SetWindowSize("Select .txt File", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
+            for (auto& file : tleFiles) {
+                if (ImGui::Button(file.filename().string().c_str())) {
+                    try {
+                        loadedSatellite.emplace(file.string()); // Correct instantiation using emplace
+                        guiState |= LoadRocketDialog; // Set the TLE Display dialog bit
+                    }
+                    catch (const std::exception& e) {
+                        std::cerr << "Error loading .txt: " << e.what() << std::endl;
+                        ImGui::OpenPopup("Error Loading File");
+                    }
+                    guiState &= ~LoadRocketDialog; // Clear the Sat File List dialog bit
+                }
+            }
+            if (ImGui::Button("Cancel")) {
+                guiState &= ~LoadRocketDialog; // Clear the Sat File List dialog bit
+            }
+            ImGui::EndPopup();
+        }
+    }
+
 
     ImGui::End();
 
