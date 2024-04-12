@@ -7,6 +7,7 @@
 
 const double PI = 3.141592653;
 const double MU = 3.986 * (10 ^ 5);// G * M_earth
+const double R_Earth = 6370; // radius of the earth
 
 // This class controls the orbit stuff
 // For example: given the initial position and deltaV, it will output possible orbits depending on user input
