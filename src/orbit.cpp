@@ -8,12 +8,13 @@ Orbit::Orbit() // default constructor
 	initialVelo *= cos(launchCoords[0]); // Adjusts initial velocity depending on the lattitude
 	toPrint = "Nothing to print yet";
 	print(toPrint);
+
 }
 void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending on available delta V
 {
 	double finalVelo = initialVelo + deltaV;
-	double finalRadii = sqrt((finalVelo * finalVelo) / MU);
-	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalRadii - R_Earth);
+	double finalPos = sqrt((finalVelo * finalVelo) / MU);
+	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalPos - initialPos);
 	print(toPrint);
 }
 void Orbit::inclinationPossibilities() // Possible launch inclinations from earth
