@@ -138,7 +138,7 @@ void TotalRocket::detachStage()
 
 }
 
-std::queue<RocketStage*> TotalRocket::getStageQueue() const {
+const std::queue<RocketStage*>& TotalRocket::getStageQueue() const {
 	return totalRocketQueue;
 }
 

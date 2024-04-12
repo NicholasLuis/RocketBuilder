@@ -2,13 +2,14 @@
 # include <../src/GuiManager.h>
 
 
-GuiManager::GuiManager() : window(nullptr) {
+GuiManager::GuiManager() : window(nullptr), totalRocket(new TotalRocket) {
     // Constructor
 }
 
 GuiManager::~GuiManager() {
     // Destructor
     stop();
+    delete totalRocket;
 }
 
 void GuiManager::start() {
@@ -108,7 +109,7 @@ void GuiManager::displayGui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-  
+
     // ____________________________________________________________
     // TLE PROGRAM
 
@@ -226,7 +227,7 @@ void GuiManager::displayGui() {
     // Dialog for building or editing the rocket
     if (guiState & RocketBuilderDialog) {
         ImGui::Begin("Rocket Builder", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        TotalRocket totalRocket;
+        TotalRocket* totalRocket;
         RocketBuilder(totalRocket); // Function to handle the building of the rocket
         if (ImGui::Button("Done")) {
             guiState |= RocketPropertiesDialog; // Open rocket properties dialog
@@ -258,8 +259,8 @@ void GuiManager::displayGui() {
             guiState &= ~RocketPropertiesDialog; // Close properties dialog temporarily
         }
         if (ImGui::Button("Destroy")) {
-            while (!totalRocket.getStageQueue().empty()) {
-                totalRocket.detachStage(); // Detach and deconstruct all stages
+            while (!totalRocket->getStageQueue().empty()) {
+                totalRocket->detachStage(); // Detach and deconstruct all stages
             }
             guiState &= ~RocketPropertiesDialog; // Close properties dialog permanently
         }
@@ -269,7 +270,7 @@ void GuiManager::displayGui() {
 
     //______________________________________________________________
     // ENDING
-    
+
     // Rendering
     ImGui::Render();
     int display_w, display_h;
@@ -284,22 +285,22 @@ void GuiManager::displayGui() {
 
 }
 
-void GuiManager::RocketBuilder(TotalRocket totalRocket) {
+void GuiManager::RocketBuilder(TotalRocket* totalRocket) {
     static int numStages = 1;
     ImGui::InputInt("Number of Stages", &numStages);
     numStages = std::max(1, numStages); // Ensure at least one stage
 
     // Ensure the rocket has the correct number of stages
-    while (totalRocket.getStageQueue().size() < numStages) {
-        totalRocket.addToRocket(new RocketStage());
+    while (totalRocket->getStageQueue().size() < numStages) {
+        totalRocket->addToRocket(new RocketStage());
     }
-    while (totalRocket.getStageQueue().size() > numStages) {
-        totalRocket.detachStage();
+    while (totalRocket->getStageQueue().size() > numStages) {
+        totalRocket->detachStage();
     }
 
     if (ImGui::BeginTabBar("Stages Tab Bar")) {
         // Make a copy of the original queue for safe iteration
-        std::queue<RocketStage*> tempQueue = totalRocket.getStageQueue();
+        std::queue<RocketStage*> tempQueue = totalRocket->getStageQueue();
         std::vector<RocketStage*> tempStages; // Temporary storage to preserve stages
 
         while (!tempQueue.empty()) {
@@ -334,11 +335,11 @@ void GuiManager::RocketBuilder(TotalRocket totalRocket) {
         }
 
         // Re-populate the original queue with the updated stages
-        while (!totalRocket.getStageQueue().empty()) {
-            totalRocket.detachStage(); // Empty the original queue
+        while (!totalRocket->getStageQueue().empty()) {
+            totalRocket->detachStage(); // Empty the original queue
         }
         for (RocketStage* stage : tempStages) {
-            totalRocket.addToRocket(stage);
+            totalRocket->addToRocket(stage);
         }
 
         ImGui::EndTabBar();
@@ -346,11 +347,9 @@ void GuiManager::RocketBuilder(TotalRocket totalRocket) {
 
     if (ImGui::Button("Cancel")) {
         // Clear the rocket and reset the dialog bit accordingly
-        while (!totalRocket.getStageQueue().empty()) {
-            totalRocket.detachStage();
+        while (!totalRocket->getStageQueue().empty()) {
+            totalRocket->detachStage();
         }
         guiState &= ~RocketBuilderDialog; // Clear the Rocket Builder dialog bit
     }
 }
-
-

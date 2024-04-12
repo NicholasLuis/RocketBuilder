@@ -73,7 +73,7 @@ public:
 	void setPayload(RocketStage* payloadStage);
 	double getDeltaV();
 	double getDeltaV(double fuelToBurn);
-	std::queue<RocketStage*> getStageQueue() const;
+	const std::queue<RocketStage*>& getStageQueue() const;
 };
 
 #endif

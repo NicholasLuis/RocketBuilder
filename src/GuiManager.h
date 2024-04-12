@@ -18,6 +18,7 @@
 
 namespace fs = std::filesystem;
 
+class TotalRocket;
 
 class GuiManager {
 public:
@@ -27,7 +28,7 @@ public:
     void start();
     void stop();
     void run();
-    void RocketBuilder(TotalRocket totalRocket);
+    void RocketBuilder(TotalRocket* totalRocket);
     bool isRunning() const {
         return running;
     }
@@ -54,7 +55,7 @@ private:
 
     std::vector<fs::path> tleFiles;
     std::optional<Satellite> loadedSatellite;
-    //TotalRocket totalRocket;
+    TotalRocket* totalRocket;
 
     void initializeGui();
     void mainLoop();
