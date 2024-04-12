@@ -289,7 +289,10 @@ void GuiManager::RocketBuilder() {
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
-        guiState &= ~BuildRocketDialog; // Clear the bit after use
+        if (ImGui::Button("Close")) {
+            guiState &= ~TleDisplayDialog; // Clear the TLE Display dialog bit
+            // Optionally reset loadedSatellite or other states as needed
+        }
     }
 }
 
