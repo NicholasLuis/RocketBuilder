@@ -29,10 +29,10 @@ public:
 class RocketStage : public Rocket // Each stage is a rocket in of itself
 {
 private:
-	double stageTotalMass; // this is the mass of the stage
-	double stageFuelMass;
-	double stageStructureMass;
-	double I_sp;
+	double stageTotalMass=0; // this is the mass of the stage
+	double stageFuelMass=0;
+	double stageStructureMass=0;
+	double I_sp=0;
 
 public:
 	RocketStage();
