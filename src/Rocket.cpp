@@ -64,6 +64,8 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 	}
 	return totalDeltaV;
 }
+
+
 double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta V if you only burn a certain amount of fuel
 {
 	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
