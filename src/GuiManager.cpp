@@ -226,9 +226,8 @@ void GuiManager::displayGui() {
 
     // Dialog for building or editing the rocket
     if (guiState & RocketBuilderDialog) {
-        ImGui::Begin("Rocket Builder", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        TotalRocket* totalRocket;
-        RocketBuilder(totalRocket); // Function to handle the building of the rocket
+        ImGui::Begin("Rocket Builder", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        RocketBuilder(); // Function to handle the building of the rocket
         if (ImGui::Button("Done")) {
             guiState |= RocketPropertiesDialog; // Open rocket properties dialog
             guiState &= ~RocketBuilderDialog;  // Close builder dialog
@@ -238,7 +237,7 @@ void GuiManager::displayGui() {
 
     // Dialog for loading a rocket
     if (guiState & LoadRocketDialog) {
-        ImGui::Begin("Load Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Load Rocket", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         // UI elements for loading a rocket could go here
         if (ImGui::Button("Load")) {
             // Implement the actual loading logic here
@@ -252,7 +251,7 @@ void GuiManager::displayGui() {
 
     // Dialog for displaying and managing rocket properties
     if (guiState & RocketPropertiesDialog) {
-        ImGui::Begin("Rocket Properties", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Rocket Properties", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         // Display properties of the rocket
         if (ImGui::Button("Edit")) {
             guiState |= RocketBuilderDialog;  // Reopen rocket builder dialog
@@ -285,7 +284,7 @@ void GuiManager::displayGui() {
 
 }
 
-void GuiManager::RocketBuilder(TotalRocket* totalRocket) {
+void GuiManager::RocketBuilder() {
     static int numStages = 1;
     ImGui::InputInt("Number of Stages", &numStages);
     numStages = std::max(1, numStages); // Ensure at least one stage
@@ -302,6 +301,9 @@ void GuiManager::RocketBuilder(TotalRocket* totalRocket) {
         // Make a copy of the original queue for safe iteration
         std::queue<RocketStage*> tempQueue = totalRocket->getStageQueue();
         std::vector<RocketStage*> tempStages; // Temporary storage to preserve stages
+        double structMass = 0.0;
+        double fuelMass = 0.0;
+        double isp = 0.0;
 
         while (!tempQueue.empty()) {
             tempStages.push_back(tempQueue.front());

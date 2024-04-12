@@ -18,7 +18,7 @@ protected:
 
 public:
 	Rocket();
-	~Rocket();
+	virtual ~Rocket();
 	virtual double getFuelMass() = 0;
 	virtual double getStructureMass() = 0;
 	virtual double getTotalMass() = 0;
@@ -38,7 +38,7 @@ public:
 	RocketStage();
 	RocketStage(double structW, double fuelW, double specImp);
 
-	~RocketStage(); // de-constructor
+	virtual ~RocketStage() override; // de-constructor
 	double getFuelMass() override;
 	double getStructureMass() override;
 	double getTotalMass() override;
@@ -63,7 +63,7 @@ private:
 
 public:
 	TotalRocket();
-	~TotalRocket();  // Destructor declaration
+	virtual ~TotalRocket() override;  // Destructor declaration
 
 	double getFuelMass();
 	double getStructureMass();
