@@ -8,8 +8,6 @@
 #include <cmath> // needed to take natural log for deltaV calculations
 #include <mutex>
 
-double g = 9.81;
-
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
 protected:
@@ -20,8 +18,10 @@ protected:
 	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 
 public:
+	Rocket();
+	~Rocket();
 	virtual double getFuelMass() = 0;
-	virtual double getStructureMss() = 0;
+	virtual double getStructureMass() = 0;
 	virtual double getTotalMass() = 0;
 	virtual void setMutex(std::mutex* mutex) = 0;
 	static void log(const std::string& message);    // Log function for clean console output and control of console
@@ -37,13 +37,24 @@ private:
 	double I_sp;
 
 public:
-	RocketStage(double structW, double fuelW, double I_sp);
+	RocketStage();
+	RocketStage(double structW, double fuelW, double specImp);
+
 	~RocketStage(); // de-constructor
-	double getFuelMass();
-	double getStructureMass();
-	double getTotalMass();
+	double getFuelMass() override;
+	double getStructureMass() override;
+	double getTotalMass() override;
 	double getI_sp();
-	void setMutex(std::mutex* mutex);
+
+	// Setters
+	void setStructureMass(double mass);
+	void setFuelMass(double mass);
+	void setI_sp(double isp);
+
+	// Helper function to update the total mass of the stage
+	void updateTotalMass();
+
+	void setMutex(std::mutex* mutex)  override;
 };
 
 
