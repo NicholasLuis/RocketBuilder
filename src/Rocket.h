@@ -21,11 +21,13 @@ protected:
 
 public:
 	virtual double getFuelMass() = 0;
-	virtual double getStructureMss() = 0;
+	virtual double getStructureMass() = 0;
 	virtual double getTotalMass() = 0;
 	virtual void setMutex(std::mutex* mutex) = 0;
 	static void log(const std::string& message);    // Log function for clean console output and control of console
 };
+
+
 
 
 class RocketStage : public Rocket // Each stage is a rocket in of itself
@@ -39,11 +41,11 @@ private:
 public:
 	RocketStage(double structW, double fuelW, double I_sp);
 	~RocketStage(); // de-constructor
-	double getFuelMass();
-	double getStructureMass();
-	double getTotalMass();
+	double getFuelMass() override;
+	double getStructureMass() override;
+	double getTotalMass() override;
 	double getI_sp();
-	void setMutex(std::mutex* mutex);
+	void setMutex(std::mutex* mutex) override;
 };
 
 
@@ -61,7 +63,7 @@ public:
 	void detatchStage(); // Detaches the bottom stage (obviously)
 	double getDeltaV(); // Returns the delta v if you burn all the fuel
 	double getDeltaV(double fuelToBurn); // Returns the delta v if you burn all the fuel
-	void setMutex(std::mutex* mutex);
+	void setMutex(std::mutex* mutex) override;
 
 };
 
