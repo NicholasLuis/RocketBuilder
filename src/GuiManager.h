@@ -34,6 +34,7 @@ private:
     int guiState = 0;
 
     std::vector<fs::path> tleFiles;
+    std::vector<fs::path> txtFiles;
     std::optional<Satellite> loadedSatellite;
 
     void initializeGui();
@@ -41,6 +42,7 @@ private:
     void cleanup();
     void displayFiles(const std::vector<fs::path>& files);
     std::vector<fs::path> listTLEFiles(const fs::path& directory);
+    std::vector<fs::path> listTXTFiles(const fs::path& directory);
     std::string sanitizeFilePath(const std::string& input);
     void displayGui();
 };
