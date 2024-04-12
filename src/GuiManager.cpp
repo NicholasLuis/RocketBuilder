@@ -313,7 +313,8 @@ void GuiManager::RocketBuilder() {
         for (int i = 0; i < tempStages.size(); ++i) {
             std::string tabName = "Stage " + std::to_string(i + 1);
             if (ImGui::BeginTabItem(tabName.c_str())) {
-                double structMass = tempStages[i]->getStructureMass();
+
+                double structMass = tempStages[i]->getStructureMass(); 
                 double fuelMass = tempStages[i]->getFuelMass();
                 double isp = tempStages[i]->getI_sp();
 
