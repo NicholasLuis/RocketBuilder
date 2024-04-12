@@ -57,8 +57,8 @@ void Orbit::inclinationPossibilities(double deltaV, double radius, int e) // rad
 	print(toPrint);
 }
 
+std::mutex Orbit::console_mtx;
 void Orbit::print(const std::string& str) {
-	std::cout << str <<std::endl;
-	//std::lock_guard<std::mutex> lock(console_mtx);
-	//ConsoleManager::getInstance().log(str);
+	std::lock_guard<std::mutex> lock(console_mtx);
+	ConsoleManager::getInstance().print(str);
 }

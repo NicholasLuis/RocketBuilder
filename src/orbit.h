@@ -3,7 +3,7 @@
 #include <string>
 #include <cmath>
 #include <mutex>
-# include <../src/ConsoleManager.h>
+# include <../src/global.h>
 
 const double PI = 3.141592653;
 const double MU = 3.986 * (10 ^ 5);// G * M_earth
@@ -17,7 +17,7 @@ private:
 	std::vector<double> launchCoords; // Initializes a vector of size 2 (lat and long coordinates)
 	std::string toPrint;
 	double initialPos;
-//	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
+	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 
 	double totalEnergy;
 public:
