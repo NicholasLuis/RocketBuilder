@@ -116,11 +116,11 @@ void GuiManager::displayGui() {
     // GUI PROGRAM STARTS HERE
 
     if (ImGui::Button("Load TLE from file")) {
-        show_load_file_dialog = true;
+        guiState |= LoadFileDialog; // Set the Load File dialog bit
     }
 
     // Load file dialog
-    if (show_load_file_dialog) {
+    if (guiState & LoadFileDialog) { // Check if the Load File dialog bit is set
         ImGui::OpenPopup("Load TLE File");
         static char buf[1024] = "";
         if (ImGui::BeginPopupModal("Load TLE File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -130,18 +130,18 @@ void GuiManager::displayGui() {
                 try {
                     std::string sanitizedPath = sanitizeFilePath(buf);
                     loadedSatellite = Satellite(sanitizedPath); // Directly instantiate
-                    show_tle_display = true;
+                    guiState |= TleDisplayDialog; // Set the TLE Display dialog bit
                 }
                 catch (const std::exception& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                     ImGui::OpenPopup("Error Loading File");
                 }
-                show_load_file_dialog = false;
+                guiState &= ~LoadFileDialog; // Clear the Load File dialog bit
                 memset(buf, 0, sizeof(buf)); // Clear the buffer after loading
             }
             ImGui::SameLine();
             if (ImGui::Button("Cancel")) {
-                show_load_file_dialog = false;
+                guiState &= ~LoadFileDialog; // Clear the Load File dialog bit
                 memset(buf, 0, sizeof(buf)); // Clear the buffer on cancel
             }
             ImGui::EndPopup();
@@ -150,11 +150,11 @@ void GuiManager::displayGui() {
 
     if (ImGui::Button("Select from available TLE data")) {
         tleFiles = listTLEFiles("./data"); // Assuming the TLE files are stored in "./data"
-        show_sat_file_list = true;
+        guiState |= SatFileListDialog; // Set the Sat File List dialog bit
     }
 
     // Satellite file list dialog
-    if (show_sat_file_list) {
+    if (guiState & SatFileListDialog) {
         ImGui::OpenPopup("Select TLE File");
         if (ImGui::BeginPopupModal("Select TLE File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetWindowSize("Select TLE File", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
@@ -162,17 +162,17 @@ void GuiManager::displayGui() {
                 if (ImGui::Button(file.filename().string().c_str())) {
                     try {
                         loadedSatellite.emplace(file.string()); // Correct instantiation using emplace
-                        show_tle_display = true;
+                        guiState |= TleDisplayDialog; // Set the TLE Display dialog bit
                     }
                     catch (const std::exception& e) {
                         std::cerr << "Error loading TLE: " << e.what() << std::endl;
                         ImGui::OpenPopup("Error Loading File");
                     }
-                    show_sat_file_list = false;
+                    guiState &= ~SatFileListDialog; // Clear the Sat File List dialog bit
                 }
             }
             if (ImGui::Button("Cancel")) {
-                show_sat_file_list = false;
+                guiState &= ~SatFileListDialog; // Clear the Sat File List dialog bit
             }
             ImGui::EndPopup();
         }
@@ -180,7 +180,7 @@ void GuiManager::displayGui() {
 
 
     // Display loaded satellite details in a popup
-    if (show_tle_display && loadedSatellite) {
+    if (guiState & TleDisplayDialog && loadedSatellite) {
         ImGui::OpenPopup("Satellite TLE");
         if (ImGui::BeginPopupModal("Satellite TLE", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetWindowSize("Satellite TLE", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
@@ -201,7 +201,7 @@ void GuiManager::displayGui() {
             ImGui::Text("Revolution Number at Epoch: %d", loadedSatellite->getRevolutionNumberAtEpoch());
 
             if (ImGui::Button("Close")) {
-                show_tle_display = false; // Close the popup
+                guiState &= ~TleDisplayDialog; // Clear the TLE Display dialog bit
                 // Optionally reset loadedSatellite or other states as needed
             }
             ImGui::EndPopup();

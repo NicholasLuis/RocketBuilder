@@ -23,9 +23,13 @@ private:
     bool running = false;
 
     // GUI state
-    bool show_load_file_dialog = false;
-    bool show_sat_file_list = false;
-    bool show_tle_display = false;
+    enum DialogFlags {
+        LoadFileDialog = 1 << 0, // Bit 0
+        SatFileListDialog = 1 << 1, // Bit 1
+        TleDisplayDialog = 1 << 2  // Bit 2
+    };
+    int guiState = 0;
+
     std::vector<fs::path> tleFiles;
     std::optional<Satellite> loadedSatellite;
 
