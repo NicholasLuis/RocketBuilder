@@ -65,7 +65,6 @@ void RocketStage::updateTotalMass() {
 }
 
 
-
 // -----TOTAL ROCKET CLASS-----
 TotalRocket::TotalRocket() : Rocket(), payload(nullptr), name(" ") {}
 TotalRocket::~TotalRocket() {
@@ -128,6 +127,7 @@ double TotalRocket::getTotalMass() {
 
 	return combinedMass; 										// return the total mass
 }
+
 
 // Set payload stage
 void TotalRocket::setPayload(RocketStage* payloadStage) {	// Set payload stage
