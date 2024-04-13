@@ -32,7 +32,7 @@ public:
     bool isRunning() const {                    // Check if GUI is running
         return running;
     }
-
+    
 private:
     GLFWwindow* window;                         // Window handle
     std::thread guiThread;                      // GUI thread
@@ -40,7 +40,7 @@ private:
 
     // GUI state management using enum with bitwise operators
     enum DialogFlags {
-        guiState = 0,                           // No dialogs open
+        noDialog = 0,                           // No dialogs open
         RocketBuilderDialog = 1 << 0,           // Bit 0: Dialog to build/edit rocket configurations
         RocketPropertiesDialog = 1 << 1,        // Bit 1: Dialog showing rocket properties and controls
         RocketDialog = 1 << 2,				    // Bit 2: Rocket dialog
@@ -49,7 +49,7 @@ private:
         LoadRocketDialog = 1 << 5,              // Bit 5: Rocket load dialog
         SatFileListDialog = 1 << 6,             // Bit 6: Satellite file list dialog
     };
-    // int guiState = 0;
+    int guiState = noDialog;
 
     std::vector<fs::path> tleFiles;                         // List of TLE files in the directory
     std::optional<Satellite> loadedSatellite;               // Satellite loaded from TLE file
