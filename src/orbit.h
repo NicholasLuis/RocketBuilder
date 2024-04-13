@@ -2,5 +2,7 @@
 
 class Orbit {
 public:
-	Orbit();
+    double altitude; // in kilometers
+    double inclination; // in degrees
+    Orbit() : altitude(0.0), inclination(0.0) {}
 };

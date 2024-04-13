@@ -2,13 +2,14 @@
 # include <../src/GuiManager.h>
 
 
-GuiManager::GuiManager() : window(nullptr) {
+GuiManager::GuiManager() : window(nullptr), totalRocket(new TotalRocket) {
     // Constructor
 }
 
 GuiManager::~GuiManager() {
     // Destructor
     stop();
+    delete totalRocket;
 }
 
 void GuiManager::start() {
@@ -36,7 +37,7 @@ void GuiManager::initializeGui() {
     if (!glfwInit()) return;
 
     // Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(2560, 1440, "TLE Loader", NULL, NULL);
+    window = glfwCreateWindow(2560, 1440, "SAT Launcher", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return;
@@ -108,19 +109,19 @@ void GuiManager::displayGui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Main window code
-    ImGui::Begin("TLE Loader");
-
 
     // ____________________________________________________________
-    // GUI PROGRAM STARTS HERE
+    // TLE PROGRAM
+
+      // Main window code
+    ImGui::Begin("TLE Loader");
 
     if (ImGui::Button("Load TLE from file")) {
-        show_load_file_dialog = true;
+        guiState |= LoadFileDialog; // Set the Load File dialog bit
     }
 
     // Load file dialog
-    if (show_load_file_dialog) {
+    if (guiState & LoadFileDialog) { // Check if the Load File dialog bit is set
         ImGui::OpenPopup("Load TLE File");
         static char buf[1024] = "";
         if (ImGui::BeginPopupModal("Load TLE File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -130,18 +131,18 @@ void GuiManager::displayGui() {
                 try {
                     std::string sanitizedPath = sanitizeFilePath(buf);
                     loadedSatellite = Satellite(sanitizedPath); // Directly instantiate
-                    show_tle_display = true;
+                    guiState |= TleDisplayDialog; // Set the TLE Display dialog bit
                 }
                 catch (const std::exception& e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                     ImGui::OpenPopup("Error Loading File");
                 }
-                show_load_file_dialog = false;
+                guiState &= ~LoadFileDialog; // Clear the Load File dialog bit
                 memset(buf, 0, sizeof(buf)); // Clear the buffer after loading
             }
             ImGui::SameLine();
             if (ImGui::Button("Cancel")) {
-                show_load_file_dialog = false;
+                guiState &= ~LoadFileDialog; // Clear the Load File dialog bit
                 memset(buf, 0, sizeof(buf)); // Clear the buffer on cancel
             }
             ImGui::EndPopup();
@@ -150,11 +151,11 @@ void GuiManager::displayGui() {
 
     if (ImGui::Button("Select from available TLE data")) {
         tleFiles = listTLEFiles("./data"); // Assuming the TLE files are stored in "./data"
-        show_sat_file_list = true;
+        guiState |= SatFileListDialog; // Set the Sat File List dialog bit
     }
 
     // Satellite file list dialog
-    if (show_sat_file_list) {
+    if (guiState & SatFileListDialog) {
         ImGui::OpenPopup("Select TLE File");
         if (ImGui::BeginPopupModal("Select TLE File", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetWindowSize("Select TLE File", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
@@ -162,17 +163,17 @@ void GuiManager::displayGui() {
                 if (ImGui::Button(file.filename().string().c_str())) {
                     try {
                         loadedSatellite.emplace(file.string()); // Correct instantiation using emplace
-                        show_tle_display = true;
+                        guiState |= TleDisplayDialog; // Set the TLE Display dialog bit
                     }
                     catch (const std::exception& e) {
                         std::cerr << "Error loading TLE: " << e.what() << std::endl;
                         ImGui::OpenPopup("Error Loading File");
                     }
-                    show_sat_file_list = false;
+                    guiState &= ~SatFileListDialog; // Clear the Sat File List dialog bit
                 }
             }
             if (ImGui::Button("Cancel")) {
-                show_sat_file_list = false;
+                guiState &= ~SatFileListDialog; // Clear the Sat File List dialog bit
             }
             ImGui::EndPopup();
         }
@@ -180,7 +181,7 @@ void GuiManager::displayGui() {
 
 
     // Display loaded satellite details in a popup
-    if (show_tle_display && loadedSatellite) {
+    if (guiState & TleDisplayDialog && loadedSatellite) {
         ImGui::OpenPopup("Satellite TLE");
         if (ImGui::BeginPopupModal("Satellite TLE", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::SetWindowSize("Satellite TLE", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
@@ -201,17 +202,81 @@ void GuiManager::displayGui() {
             ImGui::Text("Revolution Number at Epoch: %d", loadedSatellite->getRevolutionNumberAtEpoch());
 
             if (ImGui::Button("Close")) {
-                show_tle_display = false; // Close the popup
+                guiState &= ~TleDisplayDialog; // Clear the TLE Display dialog bit
                 // Optionally reset loadedSatellite or other states as needed
             }
             ImGui::EndPopup();
         }
     }
 
-    // ______________________________________________________________
-    // GUI PROGRAM ENDSS HERE
-
     ImGui::End();
+
+
+    // ______________________________________________________________
+    // ROCKET BUILDING PROGRAM
+    if (ImGui::Begin("Rocket Builder")) {
+        if (ImGui::Button("Load Rocket")) {
+            guiState |= LoadRocketDialog; // Set the Load Rocket dialog bit
+        }
+        if (ImGui::Button("Build from scratch")) {
+            guiState |= RocketBuilderDialog; // Set the Build Rocket dialog bit
+        }
+        ImGui::End(); // Close the main "Rocket Builder" window
+    }
+
+    // Dialog for building or editing the rocket
+    if (guiState & RocketBuilderDialog) {
+        ImGui::Begin("Rocket Builder", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        RocketBuilder(); // Function to handle the building of the rocket
+        if (ImGui::Button("Done")) {
+            guiState |= RocketPropertiesDialog; // Open rocket properties dialog
+            guiState &= ~RocketBuilderDialog;  // Close builder dialog
+        }
+        ImGui::End();
+    }
+
+    // Dialog for loading a rocket
+    if (guiState & LoadRocketDialog) {
+        ImGui::Begin("Load Rocket", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        // UI elements for loading a rocket could go here
+        if (ImGui::Button("Load")) {
+            // Implement the actual loading logic here
+            guiState &= ~LoadRocketDialog; // Assume load is successful, close this dialog
+        }
+        if (ImGui::Button("Cancel")) {
+            guiState &= ~LoadRocketDialog; // Clear the bit after use
+        }
+        ImGui::End();
+    }
+
+    // Dialog for displaying and managing rocket properties
+    if (guiState & RocketPropertiesDialog) {
+        ImGui::Begin("Rocket Properties", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        // Display properties of the rocket
+
+
+
+
+
+
+
+        // Dispalys
+        if (ImGui::Button("Edit")) {
+            guiState |= RocketBuilderDialog;  // Reopen rocket builder dialog
+            guiState &= ~RocketPropertiesDialog; // Close properties dialog temporarily
+        }
+        if (ImGui::Button("Destroy")) {
+            while (!totalRocket->getStageQueue().empty()) {
+                totalRocket->detachStage(); // Detach and deconstruct all stages
+            }
+            guiState &= ~RocketPropertiesDialog; // Close properties dialog permanently
+        }
+        ImGui::End();
+    }
+
+
+    //______________________________________________________________
+    // ENDING
 
     // Rendering
     ImGui::Render();
@@ -227,3 +292,77 @@ void GuiManager::displayGui() {
 
 }
 
+void GuiManager::RocketBuilder() {
+    static int numStages = 1;
+    ImGui::InputInt("Number of Stages", &numStages);
+    numStages = std::max(1, numStages); // Ensure at least one stage
+
+    // Ensure the rocket has the correct number of stages
+    while (totalRocket->getStageQueue().size() < numStages) {
+        totalRocket->addToRocket(new RocketStage(0,0,0,0)); // Add stages as needed
+    }
+    while (totalRocket->getStageQueue().size() > numStages) {
+        totalRocket->detachStage(); // Remove stages in excess
+    }
+
+    if (ImGui::BeginTabBar("Stages Tab Bar")) {
+        // Make a copy of the original queue for safe iteration
+        auto tempQueue = totalRocket->getStageQueue(); // Copy the queue
+        std::vector<RocketStage*> tempStages; // Temporary storage to preserve stages
+        double structMass = 0.0;
+        double fuelMass = 0.0;
+        double isp = 0.0;
+
+        while (!tempQueue.empty()) { // Copy the queue to the temporary vector
+			RocketStage* stage = tempQueue.front().get(); 
+			tempStages.push_back(stage); 
+			tempQueue.pop(); 
+		}
+
+        for (int i = 0; i < tempStages.size(); ++i) {
+            std::string tabName = "Stage " + std::to_string(i + 1); // Tab name
+            if (ImGui::BeginTabItem(tabName.c_str())) { // Begin tab item
+
+                // Get the mass values
+                double structMass = tempStages[i]->getStructureMass();  
+                double fuelMass = tempStages[i]->getFuelMass(); 
+                double isp = tempStages[i]->getI_sp(); 
+
+                ImGui::Text("Structural Mass (kg):");
+                if (ImGui::InputDouble("##StructuralMass", &structMass)) {
+                    tempStages[i]->setStructureMass(structMass); // Update the stage Structure mass
+                }
+
+                ImGui::Text("Fuel Mass (kg):");
+                if (ImGui::InputDouble("##FuelMass", &fuelMass)) {
+                    tempStages[i]->setFuelMass(fuelMass); // Update the stage Fuel mass
+                }
+
+                ImGui::Text("Specific Impulse (s):");
+                if (ImGui::InputDouble("##SpecificImpulse", &isp)) {
+                    tempStages[i]->setI_sp(isp); // Update the stage Isp
+                }
+
+                ImGui::EndTabItem();
+            }
+        }
+
+        // Re-populate the original queue with the updated stages
+        //while (!totalRocket->getStageQueue().empty()) {
+        //    totalRocket->detachStage(); // Empty the original queue
+        //}
+        //for (RocketStage* stage : tempStages) {
+        //    totalRocket->addToRocket(stage); // Re-add the updated stages
+        //}
+
+        ImGui::EndTabBar(); // End the tab bar
+    }
+
+    if (ImGui::Button("Cancel")) {
+        // Clear the rocket and reset the dialog bit accordingly
+        while (!totalRocket->getStageQueue().empty()) { 
+            totalRocket->detachStage(); 
+        }
+        guiState &= ~RocketBuilderDialog; // Clear the Rocket Builder dialog bit
+    }
+}

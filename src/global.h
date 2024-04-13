@@ -2,7 +2,9 @@
 # include <../src/booster.h>
 # include <../src/orbit.h>
 # include <../src/satellite.h>
+# include <../src/Rocket.h>
 # include <../src/GuiManager.h>
+# include <../src/ConsoleManager.h>
 
 # include <GLFW/glfw3.h>
 # include <../lib/imgui/imgui.h>
