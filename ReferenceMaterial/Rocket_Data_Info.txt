@@ -1,0 +1,8 @@
+Rocket1	(Name)
+2		(Num stages)
+1.0		(Stage 1 info - Structure weight)
+2.0		(Stage 1 info - Fuel weight)
+3.0		(Stage 1 info - I_sp)
+4.0		(Stage 2 info - Structure weight)
+5.0		(Stage 2 info - Fuel Weight)
+6.0		(Stage 2 info - I_sp)

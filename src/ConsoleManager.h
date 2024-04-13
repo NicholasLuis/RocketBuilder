@@ -12,6 +12,7 @@ public:
     static ConsoleManager& getInstance();
 
     void log(const std::string& message);
+    void print(const std::string& message);
     void run();  // Start the logging thread
     void stop(); // Signal to terminate the logging thread
 

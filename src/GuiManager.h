@@ -54,6 +54,7 @@ private:
     int guiState = NoDialog;  // Initial state with no dialogs open
 
     std::vector<fs::path> tleFiles;
+    std::vector<fs::path> txtFiles;
     std::optional<Satellite> loadedSatellite;
    TotalRocket* totalRocket;
 
@@ -62,6 +63,7 @@ private:
     void cleanup();
     void displayFiles(const std::vector<fs::path>& files);
     std::vector<fs::path> listTLEFiles(const fs::path& directory);
+    std::vector<fs::path> listTXTFiles(const fs::path& directory);
     std::string sanitizeFilePath(const std::string& input);
     void displayGui();
 };

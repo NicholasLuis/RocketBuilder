@@ -17,6 +17,12 @@ void ConsoleManager::log(const std::string& message) {
     cv.notify_one();
 }
 
+void ConsoleManager::print(const std::string& message) {
+    std::lock_guard<std::mutex> lock(mtx);
+    messageQueue.push(message);
+    cv.notify_one();
+}
+
 void ConsoleManager::run() {
     active = true;
     if (!worker.joinable()) {
