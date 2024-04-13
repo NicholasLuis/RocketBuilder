@@ -67,7 +67,7 @@ double TotalRocket::getFuelMass()
 
 	double fuelMassTracker = 0;
 	int numStages = copyOfRocketQueue.size(); // Can't put this into the for loop because size of queue changes
-	for (int i = 0; i < numStages; i++)
+	for (signed int i = 0; i < numStages; i++)
 	{
 		fuelMassTracker += copyOfRocketQueue.front()->getFuelMass();
 		copyOfRocketQueue.pop();
