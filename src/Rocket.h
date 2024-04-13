@@ -4,32 +4,28 @@
 #define Rocket_H
 
 #include <queue>
-#include <../src/global.h>
+#include "global.h"
 #include <cmath> // needed to take natural log for deltaV calculations
 #include <mutex>
+
+double g = 9.81;
 
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
 protected:
-	double totalMass=0; // total mass of the whole rocket
-	double fuelMass=0; // total amount of fuel in the whole rocket
-	double structureMass=0;
+	double totalMass; // total mass of the whole rocket
+	double fuelMass; // total amount of fuel in the whole rocket
+	double structureMass;
 	std::mutex* printMutex = new std::mutex; // Mutex that controls print to console (a shared resource)
-	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 
 public:
-	Rocket();
-	~Rocket();
 	virtual double getFuelMass() = 0;
-	virtual double getStructureMass() = 0;
+	virtual double getStructureMss() = 0;
 	virtual double getTotalMass() = 0;
 	virtual void setMutex(std::mutex* mutex) = 0;
-	static void log(const std::string& message);    // Log function for clean console output and control of console
 };
 
 
-
-template <typename T>
 class RocketStage : public Rocket // Each stage is a rocket in of itself
 {
 private:
@@ -39,20 +35,17 @@ private:
 	double I_sp;
 
 public:
-	RocketStage();
-	RocketStage(double structW, double fuelW, double specImp);
-
+	RocketStage(double structW, double fuelW, double I_sp);
 	~RocketStage(); // de-constructor
-	double getFuelMass() override;
-	double getStructureMass() override;
-	double getTotalMass() override;
+	double getFuelMass();
+	double getStructureMass();
+	double getTotalMass();
 	double getI_sp();
-	void setMutex(std::mutex* mutex);
+	virtual void setMutex(std::mutex* mutex);
 };
 
 
 // Total Rocket
-template<typename T>
 class TotalRocket : public Rocket // The total rocket is obviously also a rocket
 {
 private:
@@ -62,14 +55,11 @@ private:
 
 public:
 
-	void addToRocket(RocketStage<T>* rocketPart2Add);
+	void addToRocket(RocketStage* rocketPart2Add);
 	void detatchStage(); // Detaches the bottom stage (obviously)
-	double getStructureMass() override;
-	double getFuelMass() override;
-	double getTotalMass() override;
 	double getDeltaV(); // Returns the delta v if you burn all the fuel
-	double getDeltaV(double fuelToBurn); // Returns the delta v if you burn all the fuel
-	void setMutex(std::mutex* mutex) override;
+	//	double getDeltaV(double fuelToBurn); // Returns the delta v if you burn all the fuel
+	virtual void setMutex(std::mutex* mutex);
 
 };
 
