@@ -2,7 +2,7 @@
 
 // -----TOTAL STAGE CLASS-----
 RocketStage::RocketStage() {};
-RocketStage::RocketStage(double structW = 0.0, double fuelW = 0.0, double specImp = 0.0)
+RocketStage::RocketStage(double structW, double fuelW, double specImp)
 	: stageStructureMass(structW), stageFuelMass(fuelW), I_sp(specImp), stageTotalMass(0.0) {
 	updateTotalMass();
 }
@@ -51,7 +51,7 @@ void RocketStage::setMutex(std::mutex* mutex) {
 // -----TOTAL ROCKET CLASS-----
 TotalRocket::TotalRocket() // Default constructor
 {
-	Rocket::log("A rocket is being created");
+	//Rocket::log("A rocket is being created"); // testing if the consructor works
 }
 TotalRocket::~TotalRocket()
 {
@@ -64,8 +64,10 @@ double TotalRocket::getFuelMass()
 {
 	// makes a temporary copy of the RocketQueue and pops it so that it doesn't delete the rocket after doing the 
 	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
+
 	double fuelMassTracker = 0;
-	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	int numStages = copyOfRocketQueue.size(); // Can't put this into the for loop because size of queue changes
+	for (int i = 0; i < numStages; i++)
 	{
 		fuelMassTracker += copyOfRocketQueue.front()->getFuelMass();
 		copyOfRocketQueue.pop();
@@ -76,7 +78,8 @@ double TotalRocket::getStructureMass()
 {
 	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
 	double structMassTracker = 0;
-	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	int numStages = copyOfRocketQueue.size(); // Can't put this into the for loop because size of queue changes
+	for (int i = 0; i < numStages; i++)
 	{
 		structMassTracker += copyOfRocketQueue.front()->getStructureMass();
 		copyOfRocketQueue.pop();
@@ -94,8 +97,6 @@ double TotalRocket::getTotalMass()
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
 {
 	totalRocketQueue.push(rocketPart2Add); // Adds a stage to the end
-	std::string toPrint = "The rocket now has " + std::to_string( totalRocketQueue.size() ) + " stages";
-	TotalRocket::log(toPrint);
 }
 double TotalRocket::getDeltaV() // this calculates the delta V if you burn all the fuel from all of the remaing stages
 {
@@ -105,7 +106,8 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 
 	double stageISP, initialMass, finalMass, logMassRatio;
 
-	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	int numStages = copyOfRocketQueue.size(); // Can't put this into the for loop because size of queue changes
+	for (int i = 0; i < numStages; i++)
 	{
 		stageISP = copyOfRocketQueue.front()->getI_sp();
 		initialMass = copyOfRocketQueue.front()->getTotalMass();
@@ -127,7 +129,8 @@ double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta 
 
 	double stageISP, initialMass, finalMass, logMassRatio, fuelMassTracker = 0;
 
-	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	int numStages = copyOfRocketQueue.size(); // Can't put this into the for loop because size of queue changes
+	for (int i = 0; i < numStages; i++)
 	{
 		stageISP = copyOfRocketQueue.front()->getI_sp();
 		initialMass = copyOfRocketQueue.front()->getTotalMass();
