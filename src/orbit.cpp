@@ -5,28 +5,44 @@ Orbit::Orbit() // default constructor
 	// Kennedy Space Center is the default launch site
 	launchCoords.push_back(28.5744); // Lattitude ( >0 for northern hemisphere and <0 for southern hemisphere)
 	launchCoords.push_back(80.6520); // Longitude
-	initialVelo *= cos(launchCoords[0]); // Adjusts initial velocity depending on the lattitude
-	toPrint = "Nothing to print yet";
-	print(toPrint);
-
+	initialVelo *= cos(launchCoords[0] * (PI / 180)); // Adjusts initial velocity depending on the lattitude
+	initialPos = R_Earth;
 }
+
+void Orbit::setRadius(double inputRadius)
+{
+	initialPos = inputRadius; 
+}
+void Orbit::setCoords(double latitude, double longitude)
+{
+	launchCoords[0] = latitude;
+	launchCoords[1] = longitude;
+	initialVelo *= cos(launchCoords[0] * (PI/180)); // Updates the initial velocity based on its current position
+	std::cout << "initial velocity is " << std::to_string(initialVelo) << std::endl;
+}
+double Orbit::getRadius()
+{
+	return initialPos;
+}
+
 void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending on available delta V
 {
 	double finalVelo = initialVelo + deltaV;
+	std::cout << "Final Velo will be " << finalVelo << std::endl;
 	double finalPos = sqrt((finalVelo * finalVelo) / MU);
-	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalPos - initialPos) + " km";
+	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalPos ) + " km";
 	print(toPrint);
 }
 void Orbit::inclinationPossibilities() // Possible launch inclinations from earth
 {
 	if (launchCoords[0] > 0) // If the rocket is launching from the northern hemisphere
 	{
-		toPrint = "The rocket can launch into inclinations between " + std::to_string(launchCoords[1]) +
+		toPrint = "The rocket can launch into inclinations between " + std::to_string(launchCoords[0]) +
 				  " degrees and 90 degrees";
 	}
 	else if (launchCoords[0] < 0) // If the rocket is launching from the souther hemisphere
 	{
-		toPrint = "The rocket can launch into inclinations between " + std::to_string(launchCoords[1]) +
+		toPrint = "The rocket can launch into inclinations between " + std::to_string(launchCoords[0]) +
 				  " degrees and -90 degrees";
 	}
 	else // The rocket is launching from the equator

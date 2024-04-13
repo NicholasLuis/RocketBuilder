@@ -24,6 +24,9 @@ public:
 	Orbit(); // Default constructor: assumes that the rocket is launching from earth
 
 	static void print(const std::string& message);    // Log function for clean console output and control of console
+	void setRadius(double inputRadius);
+	void setCoords(double latitude, double longitude);
+	double getRadius();
 
 	void launchPossibilities(double deltaV);
 	void inclinationPossibilities(); // Launching from earth
