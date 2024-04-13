@@ -1,97 +1,148 @@
 # include <../src/global.h>
-#include <vector>
 
+// Log Function to Control Log Messages
 void log(const std::string& str) {
     ConsoleManager::getInstance().log(str);
 }
+template<typename T>
+void log(const std::string& str, T& var) {
+    ConsoleManager::getInstance().log(str, var);
+}
+
 
 int main() {
-    GuiManager guiManager;
-    ConsoleManager::getInstance().run();
-    guiManager.start();
+    GuiManager guiManager;                          // Create GuiManager object
+    ConsoleManager::getInstance().run();			// Run ConsoleManager
+    guiManager.start();							    // Start GUI
   
-    std::thread t1([] { log("Hello from T1"); });
-    std::thread t2([] { log("Hello from T2"); });
-    std::thread t3([] { log("Hello from T3"); });
-    std::thread t4([] { log("Hello from T4"); }); 
+    // create threads to check console log
+    std::thread t1([] { log("Checking Console Log... [1]"); });
+    std::thread t2([] { log("Checking Console Log... [2]"); });
+    std::thread t3([] { log("Checking Console Log... [3]"); });
+    std::thread t4([] { log("Checking Console Log... [4]"); });
     t1.join();
     t2.join();
     t3.join();
     t4.join();
 
-    // Console interaction ----------------
-        TotalRocket totalRocket;
-        uint8_t numStages;
-        int input;
+    /* To test ConsoleManager
+    int stages;
+    double length;
+    std::string name;
+    char option;
 
-        std::cout << "Enter the number of stages" << std::endl; // Use the object that prints to console using a mutex
-        std::cin >> input;
+    log("Enter integer:", stages);
+    log("Enter double:", length);
+    log("Enter string:", name);
+    log("Enter char:", option);
+    */
 
-        while (input <= 0)
+    std::chrono::milliseconds timespan(1000);
+
+    // Console interaction ------------------------------------------------
+    // initializing variables & objects
+    TotalRocket totalRocket;
+    Orbit orbit;
+    uint8_t numStages;
+    int input;
+
+    log("Enter the number of stages",input); 
+
+    while (input <= 0)
+    {
+        input = NULL;
+        log("That is an invalid input. Please enter the number of stages again.",input);
+    }
+
+    numStages = input;
+
+    for (int i = 0; i < numStages; i++)
+    {
+        double inputStruct = 0, inputFuel = 0, inputImp = 0;
+        std::ostringstream msg;
+        msg << "Enter the structure mass of stage " << (i + 1) << ": ";
+        log(msg.str(), inputStruct);
+        msg.str("");
+        msg.clear();
+
+        msg << "Enter the fuel mass of stage " << (i + 1) << ": ";
+        log(msg.str(), inputFuel);
+        msg.str("");
+        msg.clear();
+
+        msg << "Enter the engines' specific impulse of stage " << (i + 1);
+        log(msg.str(), inputImp);
+        msg.str("");
+        msg.clear();
+
+        totalRocket.addToRocket(new RocketStage(inputStruct, inputFuel, inputImp));
+    }
+
+    log("Where is the rocket?\n\t0 if it's in space already\n\t1 if it's on Earth", input);
+    if (input == 1) // Possiblities if it were to launch from earth
+    {
+        log("Enter the lattitude of the launch site in degrees", input);
+        orbit.setCoords(input, NULL);
+
+        std::ostringstream msg;
+        msg << "Enter the amount of fuel you would like to use. (The rocket curruently has " << totalRocket.getFuelMass() << " kg of fuel)";
+        log(msg.str(), input);
+        msg.str("");
+        msg.clear();
+
+        while ((input > totalRocket.getFuelMass()) || (input < 0)) // Ensures the user enters a valid number
         {
-            input = NULL;
-            std::cout << "That is an invalid input. Please enter the number of stages again." << std::endl;
-            std::cin >> input;
+            msg << "That is not a valid input. Make sure it is a number between 0 and " << totalRocket.getFuelMass();
+            log(msg.str(), input);
+            msg.str("");
+            msg.clear();
         }
-        
-        numStages = input;
-        std::vector<RocketStage*> rocketStages(numStages);
-        
-        for (int i = 0; i < numStages; i++)
+
+        msg << "There is " << totalRocket.getDeltaV() << "km/s of delta V available";
+        log(msg.str());
+        msg.str("");
+        msg.clear();
+        orbit.launchPossibilities(totalRocket.getDeltaV(input)); // prints out the launch possibilities 
+        orbit.inclinationPossibilities(); // prints out the possible orbit inclinations attainable from 
+    }
+    else // it's in space already
+    {
+        log("What is the current altitude of the rocket (satellite)?", input);
+        while (input < 0) // Ensures the user enters a valid number
         {
-            double inputStruct, inputFuel, inputImp;
-
-            std::cout << "Enter the structural (empty) mass of stage " << std::to_string((i + 1)) << std::endl;
-            std::cin >> inputStruct;
-
-            std::cout << "Enter the fuel mass of stage " << std::to_string((i + 1)) << std::endl;
-            std::cin >> inputFuel;
-
-            std::cout << "Enter the engines' specific impulse of stage " << std::to_string((i + 1)) << std::endl;
-            std::cin >> inputImp;
-
-            rocketStages[i] = new RocketStage(inputStruct, inputFuel, inputImp);
+            log("That is not a valid input. Make sure it is a number greater than 0", input);
         }
+        orbit.setRadius(input);
 
+        std::ostringstream msg;
+        msg << "Enter the amount of fuel you would like to use. (The rocket curruently has "
+            << std::to_string(totalRocket.getFuelMass()) << " kg of fuel)";
+        log(msg.str(), input);
+        msg.str("");
+        msg.clear();
+        while ((input > totalRocket.getFuelMass()) || (input < 0)) // Ensures the user enters a valid number
+        {
+            msg << "That is not a valid input. Make sure it is a number between 0 and "
+                << totalRocket.getFuelMass();
+            log(msg.str(), input);
+            msg.str("");
+            msg.clear();
+        }
+        msg << "There is " << std::to_string(totalRocket.getDeltaV()) << "km/s of delta V available" ;
+        log(msg.str());
+        msg.str("");
+        msg.clear();
+        orbit.launchPossibilities(totalRocket.getDeltaV(input)); // prints out the launch possibilities 
+        orbit.inclinationPossibilities(totalRocket.getDeltaV(input), orbit.getRadius()); // prints out the possible orbit inclinations attainable from its current orbit
+    }
 
-    // End of console interaction ----------------
+    // End of console interaction ------------------------------------------------
 
-    while (guiManager.isRunning()) {
+    while (guiManager.isRunning()) {    
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    guiManager.stop();
-    ConsoleManager::getInstance().stop();
-
-    // example rocket for Falcon 9
-  /* std::vector<RocketStage*>rocket_stages;
-
-  //  rocket_stages.push_back(new RocketStage(25600, 395700, 283)); //stage 1 of the rocket 
-    //rocket_stages.push_back(new RocketStage(3900, 92620, 348)); // satge 2 of the rocket 
-
-    auto stage1 = new RocketStage(25600, 395700, 283);
-
-
-    TotalRocket totalRocket();
-
-
-    totalRocket.addToRocket(stage1);
-
-    // Add each RocketStage object to TotalRocket
-  /*  for (auto stage : rocket_stages) {
-        totalRocket.addToRocket(stage1);
-    }
-
-    // Calculate total deltaV of the rocket
-    double totalDeltaV = totalRocket.getDeltaV();
-    std::cout << "Total DeltaV of the rocket: " << totalDeltaV << " m/s" << std::endl;
-
-    // Clean up memory by deleting the RocketStage objects
-    for (auto stage : rocket_stages) {
-        delete stage;
-    }
-
-    */
-
+    guiManager.stop(); 							    // Stop GUI
+    ConsoleManager::getInstance().stop();			// Stop ConsoleManager
     return 0;
 }
