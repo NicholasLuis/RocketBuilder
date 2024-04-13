@@ -5,53 +5,67 @@ Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};
 Rocket::~Rocket() {};
 
 // -----TOTAL STAGE CLASS-----
-RocketStage::RocketStage() {};
-RocketStage::RocketStage(double structW = 0.0, double fuelW = 0.0, double specImp = 0.0)
+template<typename T>
+RocketStage<T>::RocketStage() {};
+template<typename T>
+RocketStage<T>::RocketStage(double structW, double fuelW, double specImp)
 	: stageStructureMass(structW), stageFuelMass(fuelW), I_sp(specImp), stageTotalMass(0.0) {
 	updateTotalMass();
 }
-RocketStage::~RocketStage()
+template<typename T>
+RocketStage<T>::~RocketStage()
 {
 	Rocket::totalMass -= stageStructureMass; // Assumes that all the fuel has been spent before stage detaches
 }
-double RocketStage::getFuelMass()
+template<typename T>
+double RocketStage<T>::getFuelMass()
 {
 	return stageFuelMass;
 }
-double RocketStage::getStructureMass()
+template<typename T>
+double RocketStage<T>::getStructureMass()
 {
 	return stageStructureMass;
 }
-double RocketStage::getTotalMass()
+template<typename T>
+double RocketStage<T>::getTotalMass()
 {
 	return stageTotalMass;
 }
-double RocketStage::getI_sp()
+template<typename T>
+double RocketStage<T>::getI_sp()
 {
 	return I_sp;
 }
 
-void RocketStage::setStructureMass(double mass) {
+template<typename T>
+void RocketStage<T>::setStructureMass(double mass) {
 	stageStructureMass = mass;
 	updateTotalMass();
 }
 
-void RocketStage::setFuelMass(double mass) {
+template<typename T>
+void RocketStage<T>::setFuelMass(double mass) {
 	stageFuelMass = mass;
 	updateTotalMass();
 }
 
-void RocketStage::setI_sp(double isp) { I_sp = isp; }
+template<typename T>
+void RocketStage<T>::setI_sp(double isp) { I_sp = isp; }
 
-void RocketStage::updateTotalMass() {
+template<typename T>
+void RocketStage<T>::updateTotalMass() {
 	stageTotalMass = stageStructureMass + stageFuelMass;
 }
 
 
 
 // -----TOTAL ROCKET CLASS-----
-TotalRocket::TotalRocket() : payload(nullptr) {}
-TotalRocket::~TotalRocket() {
+template<typename T>
+TotalRocket<T>::TotalRocket() : payload(nullptr) {}
+
+template<typename T>
+TotalRocket<T>::~TotalRocket() {
 	// Deallocate all stages in the queue
 	while (!totalRocketQueue.empty()) {
 		delete totalRocketQueue.front();  // Delete the object pointed to by the front pointer
@@ -64,18 +78,22 @@ TotalRocket::~TotalRocket() {
 	}
 }
 
-void TotalRocket::setPayload(RocketStage* payloadStage) {
+template<typename T>
+void TotalRocket<T>::setPayload(T* payloadStage) {
 	if (payload) {
 		delete payload;  // Ensure we do not leak memory if setting a new payload
 	}
 	payload = payloadStage;
 }
 
-void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
+template<typename T>
+void TotalRocket<T>::addToRocket(T* rocketPart2Add)
 {
 	totalRocketQueue.push(rocketPart2Add); // Adds a stage to the end
 }
-double TotalRocket::getDeltaV() // this calculates the delta V if you burn all the fuel from all of the remaing stages
+
+template<typename T>
+double TotalRocket<T>::getDeltaV() // this calculates the delta V if you burn all the fuel from all of the remaing stages
 {
 	// makes a temporary copy of the RocketQueue and pops it so that it doesn't delete the rocket after doing the 
 	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
@@ -98,9 +116,11 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 	}
 	return totalDeltaV;
 }
-double TotalRocket::getDeltaV(double fuelToBurn) // this calculates the delta V if you only burn a certain amount of fuel
+
+template<typename T>
+double TotalRocket<T>::getDeltaV(double fuelToBurn) // this calculates the delta V if you only burn a certain amount of fuel
 {
-	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
+	std::queue<T*> copyOfRocketQueue = totalRocketQueue;
 	double totalDeltaV = 0, stageDeltaV = 0;
 
 	double stageISP, initialMass, finalMass, logMassRatio, fuelMassTracker = 0;
@@ -131,23 +151,28 @@ double TotalRocket::getDeltaV(double fuelToBurn) // this calculates the delta V 
 	}
 	return totalDeltaV;
 }
-void TotalRocket::detachStage()
+template<typename T>
+void TotalRocket<T>::detachStage()
 {
-	totalRocketQueue.front()->~RocketStage();	// 1. Delete stage object (call de-constructor)
-	totalRocketQueue.pop();						// 2. remove stage from the queue
+	if (!totalRocketQueue.empty()) {
+		delete totalRocketQueue.front();// 1. Delete stage object (call de-constructor)
+		totalRocketQueue.pop();
+	}// 2. remove stage from the queue
+					
 
 }
-
-std::queue<RocketStage*> TotalRocket::getStageQueue() const {
+template <typename T>
+std::queue<T*> TotalRocket<T>::getStageQueue() const {
 	return totalRocketQueue;
 }
 
-double TotalRocket::getFuelMass() {
+template<typename T>
+double TotalRocket<T>::getFuelMass() {
 	double totalFuelMass = 0.0;
-	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+	std::queue<T*> tempQueue = totalRocketQueue; // Copy the original queue
 
 	while (!tempQueue.empty()) {
-		RocketStage* stage = tempQueue.front();
+		T* stage = tempQueue.front();
 		totalFuelMass += stage->getFuelMass();
 		tempQueue.pop();
 	}
@@ -155,12 +180,13 @@ double TotalRocket::getFuelMass() {
 	return totalFuelMass;
 }
 
-double TotalRocket::getStructureMass() {
+template<typename T>
+double TotalRocket<T>::getStructureMass() {
 	double totalStructureMass = 0.0;
-	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+	std::queue<T*> tempQueue = totalRocketQueue; // Copy the original queue
 
 	while (!tempQueue.empty()) {
-		RocketStage* stage = tempQueue.front();
+		T* stage = tempQueue.front();
 		totalStructureMass += stage->getStructureMass();
 		tempQueue.pop();
 	}
@@ -168,12 +194,13 @@ double TotalRocket::getStructureMass() {
 	return totalStructureMass;
 }
 
-double TotalRocket::getTotalMass() {
+template<typename T>
+double TotalRocket<T>::getTotalMass() {
 	double combinedMass = 0.0;
-	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+	std::queue<T*> tempQueue = totalRocketQueue; // Copy the original queue
 
 	while (!tempQueue.empty()) {
-		RocketStage* stage = tempQueue.front();
+		T* stage = tempQueue.front();
 		combinedMass += stage->getTotalMass();
 		tempQueue.pop();
 	}
