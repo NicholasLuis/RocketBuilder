@@ -57,6 +57,7 @@ private:
     std::vector<fs::path> tleFiles;                         // List of TLE files in the directory
     std::optional<Satellite> loadedSatellite;               // Satellite loaded from TLE file
    TotalRocket* totalRocket;                                // TotalRocket object to manage rocket and satellite objects
+   Orbit* orbit;											// Orbit object to manage orbit calculations
 
     void initializeGui(); 					                            // Initialize GUI  
     void mainLoop();							                        // Main GUI loop

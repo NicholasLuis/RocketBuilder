@@ -283,13 +283,61 @@ void GuiManager::displayGui() {
     if (guiState & RocketPropertiesDialog) {
         if (ImGui::Begin("Built Rocket", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {            // Begin the "Built Rocket" window
             ImGui::SetWindowSize("Built Rocket", ImVec2(700, 400), ImGuiCond_FirstUseEver);     // Adjust size as needed
-            ImGui::Text("Rocket Name: %s", totalRocket->getName().c_str());                     // Display the rocket name
-            ImGui::Text("Total Structure Mass: %d", totalRocket->getStructureMass());           // Display the total structure mass
-            ImGui::Text("Total Fuel Mass: %d", totalRocket->getFuelMass());                     // Display the total fuel mass
-            ImGui::Text("DeltaV: %d", totalRocket->getDeltaV());                                // Display the deltaV
+            
+            // Main Rocket Properties
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Main Rocket Properties:"); 
+            ImGui::Separator(); 
+            ImGui::Text("Rocket Name: %s", totalRocket->getName().c_str()); 
+            ImGui::Text("Total Mass: %.2f kg", totalRocket->getTotalMass()); 
+            ImGui::Text("Total Structure Mass: %.2f kg", totalRocket->getStructureMass()); 
+            ImGui::Text("Total Fuel Mass: %.2f kg", totalRocket->getFuelMass()); 
+            ImGui::Text("DeltaV: %.2f km/s", totalRocket->getDeltaV()); 
+            ImGui::Separator(); 
+            ImGui::Spacing(); 
 
+            // Stages Overview
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Stages Overview:"); 
+            ImGui::Separator(); 
+            if (ImGui::BeginTable("StagesTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) { 
+                ImGui::TableSetupColumn("Stage"); 
+                ImGui::TableSetupColumn("Total Mass (kg)"); 
+                ImGui::TableSetupColumn("Structure Mass (kg)"); 
+                ImGui::TableSetupColumn("Fuel Mass (kg)");
+                ImGui::TableSetupColumn("ISP (s)");
+                ImGui::TableHeadersRow();
 
-            // INSERT MORE ROCKET PROPERTIES HERE
+                std::queue<std::shared_ptr<RocketStage>> stages = totalRocket->getStageQueue();
+                int stageCount = 1;
+                while (!stages.empty()) {
+                    auto stage = stages.front();
+                    stages.pop();
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("Stage %d", stageCount++);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%.2f", stage->getTotalMass());
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text("%.2f", stage->getStructureMass());
+                    ImGui::TableSetColumnIndex(3);
+                    ImGui::Text("%.2f", stage->getFuelMass());
+                    ImGui::TableSetColumnIndex(4);
+                    ImGui::Text("%.2f", stage->getI_sp());
+                }
+                ImGui::EndTable();
+            }
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            // Rocket Performance Section
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Rocket Performance Metrics:");
+            ImGui::Separator();
+            //if (totalRocket->getLaunchStatus()) { // Assume a method to check if the rocket is launched
+            //    ImGui::Text("Current Altitude: %.2f km", orbit->getCurrentAltitude());
+            //    ImGui::Text("Velocity: %.2f km/s", orbit->getCurrentVelocity());
+            //    // Add more dynamic performance metrics as needed
+            //}
+            ImGui::Text("Current Altitude: NAN km");
+            ImGui::Text("Velocity: NAN km/s");
 
             // Dispalys
             if (ImGui::Button("Edit")) {
