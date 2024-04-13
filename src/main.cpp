@@ -19,8 +19,10 @@ int main() {
     t3.join();
     t4.join();
 
-    // Console interaction ----------------
+    // Console interaction ------------------------------------------------
+        // initializing variables & objects
         TotalRocket totalRocket;
+        Orbit orbit;
         uint8_t numStages;
         int input;
 
@@ -35,13 +37,12 @@ int main() {
         }
         
         numStages = input;
-        std::vector<RocketStage*> rocketStages(numStages);
         
         for (int i = 0; i < numStages; i++)
         {
-            double inputStruct, inputFuel, inputImp;
+            double inputStruct = 0, inputFuel = 0, inputImp = 0;
 
-            std::cout << "Enter the structural (empty) mass of stage " << std::to_string((i + 1)) << std::endl;
+            std::cout << "Enter the structural (empty) mass of stage " << std::to_string(i + 1) << std::endl;
             std::cin >> inputStruct;
 
             std::cout << "Enter the fuel mass of stage " << std::to_string((i + 1)) << std::endl;
@@ -50,11 +51,56 @@ int main() {
             std::cout << "Enter the engines' specific impulse of stage " << std::to_string((i + 1)) << std::endl;
             std::cin >> inputImp;
 
-            rocketStages[i] = new RocketStage(inputStruct, inputFuel, inputImp);
+            totalRocket.addToRocket(new RocketStage(inputStruct, inputFuel, inputImp));
         }
 
+        std::cout << "Where is the rocket?\n\t0 if it's in space already\n\t1 if it's on Earth" << std::endl;
+        std::cin >> input;
+        if (input == 1) // Possiblities if it were to launch from earth
+        {
+            std::cout << "Enter the lattitude of the launch site in degrees" << std::endl;
+            std::cin >> input;
+            orbit.setCoords(input, NULL);
 
-    // End of console interaction ----------------
+            std::cout << "Enter the amount of fuel you would like to use. (The rocket curruently has " << totalRocket.getFuelMass() << " kg of fuel)" << std::endl;
+            std::cin >> input;
+            
+            while ((input > totalRocket.getFuelMass()) || (input < 0)) // Ensures the user enters a valid number
+            {
+                std::cout << "That is not a valid input. Make sure it is a number between 0 and " << std::to_string(totalRocket.getFuelMass()) << std::endl;
+                std::cin >> input;
+            }
+
+            std::cout << "There is " << std::to_string(totalRocket.getDeltaV()) << "km/s of delta V available" << std::endl;;
+            orbit.launchPossibilities(totalRocket.getDeltaV(input)); // prints out the launch possibilities 
+            orbit.inclinationPossibilities(); // prints out the possible orbit inclinations attainable from 
+        }
+        else // it's in space already
+        {
+            std::cout << "What is the current altitude of the rocket (satellite)?";
+            std::cin >> input;
+            while (input < 0) // Ensures the user enters a valid number
+            {
+                std::cout << "That is not a valid input. Make sure it is a number greater than 0" << std::endl;
+                std::cin >> input;
+            }
+            orbit.setRadius(input);
+
+            std::cout << "Enter the amount of fuel you would like to use. (The rocket curruently has " 
+                      << std::to_string(totalRocket.getFuelMass()) << " kg of fuel)" << std::endl;
+            std::cin >> input;
+            while ((input > totalRocket.getFuelMass()) || (input < 0)) // Ensures the user enters a valid number
+            {
+                std::cout << "That is not a valid input. Make sure it is a number between 0 and "
+                    << std::to_string(totalRocket.getFuelMass()) << std::endl;
+                std::cin >> input;
+            }
+            std::cout << "There is " << std::to_string(totalRocket.getDeltaV()) << "km/s of delta V available" << std::endl;;
+            orbit.launchPossibilities(totalRocket.getDeltaV(input)); // prints out the launch possibilities 
+            orbit.inclinationPossibilities(totalRocket.getDeltaV(input), orbit.getRadius()); // prints out the possible orbit inclinations attainable from its current orbit
+        }
+        
+    // End of console interaction ------------------------------------------------
 
     while (guiManager.isRunning()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
