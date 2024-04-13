@@ -11,13 +11,13 @@ Orbit::Orbit() // default constructor
 
 void Orbit::setRadius(double inputRadius)
 {
-	initialPos = inputRadius; 
+	initialPos = inputRadius;
 }
 void Orbit::setCoords(double latitude, double longitude)
 {
 	launchCoords[0] = latitude;
 	launchCoords[1] = longitude;
-	initialVelo *= cos(launchCoords[0] * (PI/180)); // Updates the initial velocity based on its current position
+	initialVelo *= cos(launchCoords[0] * (PI / 180)); // Updates the initial velocity based on its current position
 	std::cout << "initial velocity is " << std::to_string(initialVelo) << std::endl;
 }
 double Orbit::getRadius()
@@ -30,7 +30,7 @@ void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending
 	double finalVelo = initialVelo + deltaV;
 	std::cout << "Final Velo will be " << finalVelo << std::endl;
 	double finalPos = sqrt((finalVelo * finalVelo) / MU);
-	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalPos ) + " km";
+	toPrint = "There is enough delta V to get to an altitude of " + std::to_string(finalPos) + " km";
 	print(toPrint);
 }
 void Orbit::inclinationPossibilities() // Possible launch inclinations from earth
@@ -38,12 +38,12 @@ void Orbit::inclinationPossibilities() // Possible launch inclinations from eart
 	if (launchCoords[0] > 0) // If the rocket is launching from the northern hemisphere
 	{
 		toPrint = "The rocket can launch into inclinations between " + std::to_string(launchCoords[0]) +
-				  " degrees and 90 degrees";
+			" degrees and 90 degrees";
 	}
 	else if (launchCoords[0] < 0) // If the rocket is launching from the souther hemisphere
 	{
 		toPrint = "The rocket can launch into inclinations between " + std::to_string(launchCoords[0]) +
-				  " degrees and -90 degrees";
+			" degrees and -90 degrees";
 	}
 	else // The rocket is launching from the equator
 	{
@@ -54,7 +54,7 @@ void Orbit::inclinationPossibilities() // Possible launch inclinations from eart
 
 void Orbit::inclinationPossibilities(double deltaV, double velocity) // must enter velocity as it crosses the equitorial plane
 {
-	double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180/PI);
+	double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180 / PI);
 	toPrint = "The satellite can change its inclination by " + std::to_string(delta_i) + " degrees";
 }
 
@@ -76,5 +76,5 @@ void Orbit::inclinationPossibilities(double deltaV, double radius, int e) // rad
 std::mutex Orbit::console_mtx;
 void Orbit::print(const std::string& str) {
 	std::lock_guard<std::mutex> lock(console_mtx);
-	ConsoleManager::getInstance().print(str);
+	ConsoleManager::getInstance().log(str);
 }

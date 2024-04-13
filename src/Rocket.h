@@ -35,7 +35,8 @@ private:
 	double I_sp;												// specific impulse of the stage
 
 public:
-	//RocketStage();
+	RocketStage();
+	RocketStage(double structW, double fuelW, double specImp);
 	RocketStage(double structW, double fuelW, double specImp, double totMass);
 
 	virtual ~RocketStage() override;							// de-constructor
@@ -67,12 +68,14 @@ public:
 
 	std::string getName();										// Getter for name
 	void setName(std::string name); 							// Setter for name
+
 	double getFuelMass(); 										// Getter for fuel mass
 	double getStructureMass(); 									// Getter for structure mass
 	double getTotalMass(); 										// Getter for total mass
+
+	void setPayload(RocketStage* payloadStage); 				// Set payload stage
 	void addToRocket(RocketStage* rocketPartToAdd); 			// Add rocket stage to the total rocket
 	void detachStage(); // Corrected typo from 'detatchStage' to 'detachStage'
-	void setPayload(RocketStage* payloadStage); 				// Set payload stage
 	double getDeltaV(); 										// Get delta V
 	double getDeltaV(double fuelToBurn); 						// Get delta V with fuel to burn
 	std::queue<std::shared_ptr<RocketStage>> getStageQueue(); 	// Get stage queue

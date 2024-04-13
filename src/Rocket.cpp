@@ -1,11 +1,14 @@
 #include "Rocket.h"
 
-// -------ROCKET CLASS--------
+// -------ROCKET (PARENT) CLASS--------
 Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};		// Constructor
 Rocket::~Rocket() {};															// Destructor
 
-// -----TOTAL STAGE CLASS-----
+// -----ROCKET STAGE CLASS-----
 //RocketStage::RocketStage() {};
+RocketStage::RocketStage(double structW, double fuelW, double specImp)
+	: stageStructureMass(structW), stageFuelMass(fuelW), I_sp(specImp), stageTotalMass(structW + fuelW) {
+}
 RocketStage::RocketStage(double structW = 0.0, double fuelW = 0.0, double specImp = 0.0, double totMass = 0.0)		// Constructor
 	: Rocket(), stageStructureMass(structW), stageFuelMass(fuelW), I_sp(specImp), stageTotalMass(totMass) {			// Initializer list
 	updateTotalMass();																								// Update the total mass
@@ -73,7 +76,49 @@ TotalRocket::~TotalRocket() {
 std::string TotalRocket::getName() { return name; }			// Getter for name
 
 // Setter for name
-void TotalRocket::setName(std::string name) { this->name = name; } // Setter for name
+void TotalRocket::setName(std::string inputName) { this->name = inputName; } // Setter for name
+
+// Get the total fuel mass of the rocket
+double TotalRocket::getFuelMass() {
+	double totalFuelMass = 0.0;									// variable to store the total fuel mass
+	auto tempQueue = totalRocketQueue; 							// temporary queue to store the stages
+
+	while (!tempQueue.empty()) { 								// while the queue is not empty
+		RocketStage* stage = tempQueue.front().get(); 			// get the front element
+		totalFuelMass += stage->getFuelMass(); 					// add the fuel mass of the stage to the total fuel mass
+		tempQueue.pop(); 										// remove the front element
+	}
+
+	return totalFuelMass; 										// return the total fuel mass
+}
+
+// Get the total structure mass of the rocket
+double TotalRocket::getStructureMass() {
+	double totalStructureMass = 0.0; 							// variable to store the total structure mass
+	auto tempQueue = totalRocketQueue; 							// temporary queue to store the stages
+
+	while (!tempQueue.empty()) { 								// while the queue is not empty
+		RocketStage* stage = tempQueue.front().get(); 			// get the front element
+		totalStructureMass += stage->getStructureMass();		// add the structure mass of the stage to the total structure mass
+		tempQueue.pop(); 										// remove the front element
+	}
+
+	return totalStructureMass; 									// return the total structure mass
+}
+
+// Get the total mass of the rocket
+double TotalRocket::getTotalMass() {
+	double combinedMass = 0.0; 									// variable to store the total mass
+	auto tempQueue = totalRocketQueue; 							// temporary queue to store the stages
+
+	while (!tempQueue.empty()) { 								// while the queue is not empty
+		RocketStage* stage = tempQueue.front().get();			// get the front element
+		combinedMass += stage->getTotalMass(); 					// add the total mass of the stage to the total mass
+		tempQueue.pop(); 										// remove the front element
+	}
+
+	return combinedMass; 										// return the total mass
+}
 
 // Set payload stage
 void TotalRocket::setPayload(RocketStage* payloadStage) {	// Set payload stage
@@ -157,48 +202,6 @@ void TotalRocket::detachStage()
 // Get the queue of stages
 std::queue<std::shared_ptr<RocketStage>> TotalRocket::getStageQueue() {
 	return totalRocketQueue;									// returns the queue of stages
-}
-
-// Get the total fuel mass of the rocket
-double TotalRocket::getFuelMass() { 
-	double totalFuelMass = 0.0;									// variable to store the total fuel mass
-	auto tempQueue = totalRocketQueue; 							// temporary queue to store the stages
-
-	while (!tempQueue.empty()) { 								// while the queue is not empty
-		RocketStage* stage = tempQueue.front().get(); 			// get the front element
-		totalFuelMass += stage->getFuelMass(); 					// add the fuel mass of the stage to the total fuel mass
-		tempQueue.pop(); 										// remove the front element
-	}
-
-	return totalFuelMass; 										// return the total fuel mass
-}
-
-// Get the total structure mass of the rocket
-double TotalRocket::getStructureMass() {
-	double totalStructureMass = 0.0; 							// variable to store the total structure mass
-	auto tempQueue = totalRocketQueue; 							// temporary queue to store the stages
-
-	while (!tempQueue.empty()) { 								// while the queue is not empty
-		RocketStage* stage = tempQueue.front().get(); 			// get the front element
-		totalStructureMass += stage->getStructureMass();		// add the structure mass of the stage to the total structure mass
-		tempQueue.pop(); 										// remove the front element
-	}
-
-	return totalStructureMass; 									// return the total structure mass
-}
-
-// Get the total mass of the rocket
-double TotalRocket::getTotalMass() {
-	double combinedMass = 0.0; 									// variable to store the total mass
-	auto tempQueue = totalRocketQueue; 							// temporary queue to store the stages
-
-	while (!tempQueue.empty()) { 								// while the queue is not empty
-		RocketStage* stage = tempQueue.front().get();			// get the front element
-		combinedMass += stage->getTotalMass(); 					// add the total mass of the stage to the total mass
-		tempQueue.pop(); 										// remove the front element
-	}
-
-	return combinedMass; 										// return the total mass
 }
 
 
