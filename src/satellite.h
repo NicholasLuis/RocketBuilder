@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <regex>
 #include <cstring>
+#include <stdexcept>
 
 class Satellite {
 public:
