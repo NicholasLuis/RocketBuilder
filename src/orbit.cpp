@@ -14,7 +14,7 @@ void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending
 {
 	double finalVelo = initialVelo + deltaV;
 	double finalPos = sqrt((finalVelo * finalVelo) / MU);
-	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalPos - initialPos);
+	toPrint = "There is enough delta V to get to an altitude of " + std::to_string( finalPos - initialPos) + " km";
 	print(toPrint);
 }
 void Orbit::inclinationPossibilities() // Possible launch inclinations from earth
