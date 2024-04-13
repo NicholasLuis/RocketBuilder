@@ -1,9 +1,5 @@
 #include "Rocket.h"
 
-// -------ROCKET CLASS--------
-//Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};
-//Rocket::~Rocket() {};
-
 // -----TOTAL STAGE CLASS-----
 RocketStage::RocketStage() {};
 RocketStage::RocketStage(double structW = 0.0, double fuelW = 0.0, double specImp = 0.0)

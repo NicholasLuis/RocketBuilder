@@ -1,4 +1,5 @@
 # include <../src/global.h>
+#include <vector>
 
 void log(const std::string& str) {
     ConsoleManager::getInstance().log(str);
@@ -18,11 +19,12 @@ int main() {
     t3.join();
     t4.join();
 
-    // Console interaction
+    // Console interaction ----------------
+        TotalRocket totalRocket;
         uint8_t numStages;
         int input;
 
-        std::cout << "Enter the number of stages" << std::endl;
+        std::cout << "Enter the number of stages" << std::endl; // Use the object that prints to console using a mutex
         std::cin >> input;
 
         while (input <= 0)
@@ -33,15 +35,26 @@ int main() {
         }
         
         numStages = input;
-        TotalRocket totalRocket;
+        std::vector<RocketStage*> rocketStages(numStages);
         
-        for (int i = 0; i < numStages; i++) // starts at i = 1 because the rocket was already inialized with the first stage
+        for (int i = 0; i < numStages; i++)
         {
-            std::cout << "Test" << std::endl;
+            double inputStruct, inputFuel, inputImp;
+
+            std::cout << "Enter the structural (empty) mass of stage " << std::to_string((i + 1)) << std::endl;
+            std::cin >> inputStruct;
+
+            std::cout << "Enter the fuel mass of stage " << std::to_string((i + 1)) << std::endl;
+            std::cin >> inputFuel;
+
+            std::cout << "Enter the engines' specific impulse of stage " << std::to_string((i + 1)) << std::endl;
+            std::cin >> inputImp;
+
+            rocketStages[i] = new RocketStage(inputStruct, inputFuel, inputImp);
         }
 
 
-    // End of console interaction
+    // End of console interaction ----------------
 
     while (guiManager.isRunning()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
