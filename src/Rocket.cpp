@@ -93,6 +93,7 @@ double TotalRocket::getTotalMass()
 
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
 {
+	
 	totalRocketQueue.push(rocketPart2Add); // Adds a stage to the end
 	std::string toPrint = "The rocket now has " + std::to_string( totalRocketQueue.size() ) + " stages";
 	TotalRocket::log(toPrint);
