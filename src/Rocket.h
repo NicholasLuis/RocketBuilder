@@ -60,11 +60,14 @@ class TotalRocket : public Rocket // The total rocket is obviously also a rocket
 private:
 	std::queue<std::shared_ptr<RocketStage>> totalRocketQueue;  // Queue managing rocket stages
 	RocketStage* payload = nullptr;  // Optional payload stage
+	std::string name;
 
 public:
 	TotalRocket();
 	virtual ~TotalRocket() override;  // Destructor declaration
 
+	std::string getName();
+	void setName(std::string name);
 	double getFuelMass();
 	double getStructureMass();
 	double getTotalMass();

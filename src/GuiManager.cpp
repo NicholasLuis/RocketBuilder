@@ -251,27 +251,27 @@ void GuiManager::displayGui() {
 
     // Dialog for displaying and managing rocket properties
     if (guiState & RocketPropertiesDialog) {
-        ImGui::Begin("Rocket Properties", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-        // Display properties of the rocket
+        if (ImGui::Begin("Built Rocket", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::SetWindowSize("Built Rocket", ImVec2(700, 400), ImGuiCond_FirstUseEver); // Adjust size as needed
+            ImGui::Text("Rocket Name: %s", totalRocket->getName().c_str());
+            ImGui::Text("Total Structure Mass: %d", totalRocket->getStructureMass());
+            ImGui::Text("Total Fuel Mass: %d", totalRocket->getFuelMass());
+            ImGui::Text("DeltaV: %d", totalRocket->getDeltaV());
 
 
-
-
-
-
-
-        // Dispalys
-        if (ImGui::Button("Edit")) {
-            guiState |= RocketBuilderDialog;  // Reopen rocket builder dialog
-            guiState &= ~RocketPropertiesDialog; // Close properties dialog temporarily
-        }
-        if (ImGui::Button("Destroy")) {
-            while (!totalRocket->getStageQueue().empty()) {
-                totalRocket->detachStage(); // Detach and deconstruct all stages
+            // Dispalys
+            if (ImGui::Button("Edit")) {
+                guiState |= RocketBuilderDialog;  // Reopen rocket builder dialog
+                guiState &= ~RocketPropertiesDialog; // Close properties dialog temporarily
             }
-            guiState &= ~RocketPropertiesDialog; // Close properties dialog permanently
+            if (ImGui::Button("Destroy")) {
+                while (!totalRocket->getStageQueue().empty()) {
+                    totalRocket->detachStage(); // Detach and deconstruct all stages
+                }
+                guiState &= ~RocketPropertiesDialog; // Close properties dialog permanently
+            }
+            ImGui::End();
         }
-        ImGui::End();
     }
 
 
@@ -294,6 +294,9 @@ void GuiManager::displayGui() {
 
 void GuiManager::RocketBuilder() {
     static int numStages = 1;
+    static char name[1024] = "";
+    ImGui::InputText("Rocket Name", name, IM_ARRAYSIZE(name)); // Input for the rocket name
+    totalRocket->setName(name); // Set the rocket name
     ImGui::InputInt("Number of Stages", &numStages);
     numStages = std::max(1, numStages); // Ensure at least one stage
 
