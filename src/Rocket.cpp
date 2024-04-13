@@ -50,7 +50,7 @@ void RocketStage::updateTotalMass() {
 
 
 // -----TOTAL ROCKET CLASS-----
-TotalRocket::TotalRocket() : Rocket(), payload(nullptr) {}
+TotalRocket::TotalRocket() : Rocket(), payload(nullptr), name(" ") {}
 TotalRocket::~TotalRocket() {
 	// Deallocate all stages in the queue
 	while (!totalRocketQueue.empty()) {
@@ -62,6 +62,10 @@ TotalRocket::~TotalRocket() {
 		payload = nullptr;
 	}
 }
+
+std::string TotalRocket::getName() { return name; }
+
+void TotalRocket::setName(std::string name) { this->name = name; }
 
 void TotalRocket::setPayload(RocketStage* payloadStage) {
 	if (payload) {
