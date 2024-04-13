@@ -11,13 +11,14 @@ void GuiManager::log(const std::string& str, T& var) {
 }
 
 // Constructor
-GuiManager::GuiManager() : window(nullptr), totalRocket(new TotalRocket) {}
+GuiManager::GuiManager() : window(nullptr), totalRocket(new TotalRocket), orbit(new Orbit) {}
 
 // Destructor
 GuiManager::~GuiManager() {
     // Destructor
     stop();
     delete totalRocket;                                 // Delete the totalRocket object
+    delete orbit;									    // Delete the orbit object
 }
 
 // Start the GUI thread
@@ -329,15 +330,89 @@ void GuiManager::displayGui() {
             ImGui::Spacing();
 
             // Rocket Performance Section
+            std::mutex mtx; // Mutex for thread-safe updates to shared variables
+
             ImGui::TextColored(ImVec4(1, 1, 0, 1), "Rocket Performance Metrics:");
             ImGui::Separator();
-            //if (totalRocket->getLaunchStatus()) { // Assume a method to check if the rocket is launched
-            //    ImGui::Text("Current Altitude: %.2f km", orbit->getCurrentAltitude());
-            //    ImGui::Text("Velocity: %.2f km/s", orbit->getCurrentVelocity());
-            //    // Add more dynamic performance metrics as needed
-            //}
-            ImGui::Text("Current Altitude: NAN km");
-            ImGui::Text("Velocity: NAN km/s");
+
+            static bool inOrbit = false;
+            static double altitude = 0.0;
+            static double velocity = 0.0;
+            static double latitude = 0.0;
+            static double fuelToUse = 0.0;
+            static double deltaVAvailable = 0.0;
+            static bool calculationComplete = false;
+            static bool calculationDisplay = false;
+            static bool isCalculating = false;
+
+            ImGui::Checkbox("In Orbit", &inOrbit);
+            if (inOrbit) {
+                ImGui::InputDouble("Current Altitude (km)", &altitude, 0.0, 0.0, "%.2f");
+                ImGui::InputDouble("Velocity (km/s)", &velocity, 0.0, 0.0, "%.2f");
+            }
+            else {
+                ImGui::InputDouble("Latitude of Launch Site (degrees)", &latitude, 0.0, 0.0, "%.2f");
+                ImGui::InputDouble("Amount of Fuel to Use (kg)", &fuelToUse, 0.0, 0.0, "%.2f");
+            }
+
+            bool canCalculate = inOrbit ? (altitude >= 0 && velocity >= 0) :
+                (latitude >= -90 && latitude <= 90 && fuelToUse >= 0 && fuelToUse <= totalRocket->getFuelMass());
+
+            if (canCalculate && !isCalculating && ImGui::Button("Calculate", ImVec2(-1, 0))) {
+                isCalculating = true;  // Flag to indicate calculation is in progress
+                std::thread calculationThread([&]() {
+                    double initialFuel = totalRocket->getFuelMass();  // Capture initial fuel for calculations
+                    double structuralMass = totalRocket->getStructureMass();
+
+                    if (inOrbit) {
+                        double logTerm = std::log((initialFuel + structuralMass) / structuralMass);
+                        deltaVAvailable = totalRocket->getDeltaV() * logTerm;
+                    }
+                    else {
+                        const double PI = 3.141592653589793;
+                        const double MU = 3.986e5; // Standard gravitational parameter
+                        const double R_Earth = 6371.0; // Radius of Earth in kilometers
+                        double v_circ = sqrt(MU / (R_Earth + altitude));
+                        double v_rot = R_Earth * cos(latitude * PI / 180) * 2 * PI / 86400;
+                        double v_total = v_circ + v_rot;
+                        double logTerm = std::log((initialFuel + structuralMass) / structuralMass);
+                        deltaVAvailable = totalRocket->getDeltaV() * logTerm;
+                        deltaVAvailable = std::min(deltaVAvailable, v_total);
+                    }
+
+                    std::lock_guard<std::mutex> guard(mtx); // Ensure thread-safe updates
+                    calculationComplete = true;
+                    calculationDisplay = true;
+                    isCalculating = false;
+                    });
+                calculationThread.detach(); // Detach the thread
+            }
+
+            if (isCalculating || !canCalculate) {
+                ImGui::BeginDisabled();
+                ImGui::Button("Calculate", ImVec2(-1, 0));
+                ImGui::EndDisabled();
+            }
+
+            if (calculationDisplay) {
+                ImGui::Separator();
+
+                if (inOrbit) {
+                    ImGui::Text("Current Altitude: %.2f km", altitude);
+                    ImGui::Text("Velocity: %.2f km/s", velocity);
+                    ImGui::Text("Delta V Available: %.2f km/s", deltaVAvailable);
+                }
+                else {
+                    ImGui::Text("Latitude of Launch Site: %.2f degrees", latitude);
+                    ImGui::Text("Amount of Fuel to Use: %.2f kg", fuelToUse);
+                    ImGui::Text("Delta V Available for Launch: %.2f km/s", deltaVAvailable);
+                }
+
+                // Reset the flags after displaying the results
+                calculationComplete = false; // This flag can be reset now
+            }
+
+            ImGui::Separator();
 
             // Dispalys
             if (ImGui::Button("Edit")) {
@@ -353,6 +428,7 @@ void GuiManager::displayGui() {
             ImGui::End();
         }
     }
+
 
 
     //______________________________________________________________
