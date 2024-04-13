@@ -1,6 +1,9 @@
 // satellite.cpp
 # include <../src/satellite.h>
 
+
+
+
 Satellite::Satellite(const std::string& filePath) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
@@ -36,6 +39,7 @@ Satellite::Satellite(const std::string& filePath) {
     }
 
     // Updated to use regex for line 2
+
     std::regex line2Regex(R"(^2\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d{8})\s?(\d+))");
     if (!std::getline(file, line)) {
         throw std::runtime_error("Invalid TLE format: missing line 2");
