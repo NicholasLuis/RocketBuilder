@@ -11,9 +11,10 @@
 class Rocket // Each rocket stage share these quantities
 {			// This class is only a template for other classes to use
 protected:
-	double totalMass; // total mass of the whole rocket
-	double fuelMass; // total amount of fuel in the whole rocket
-	double structureMass;
+	double totalMass=0; // total mass of the whole rocket
+	double fuelMass=0; // total amount of fuel in the whole rocket
+	double structureMass=0;
+	std::mutex* printMutex = new std::mutex; // Mutex that controls print to console (a shared resource)
 	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 
 public:
@@ -22,17 +23,20 @@ public:
 	virtual double getFuelMass() = 0;
 	virtual double getStructureMass() = 0;
 	virtual double getTotalMass() = 0;
+	virtual void setMutex(std::mutex* mutex) = 0;
 	static void log(const std::string& message);    // Log function for clean console output and control of console
 };
 
 
+
+template <typename T>
 class RocketStage : public Rocket // Each stage is a rocket in of itself
 {
 private:
-	double stageTotalMass=0; // this is the mass of the stage
-	double stageFuelMass=0;
-	double stageStructureMass=0;
-	double I_sp=0;
+	double stageTotalMass; // this is the mass of the stage
+	double stageFuelMass;
+	double stageStructureMass;
+	double I_sp;
 
 public:
 	RocketStage();
@@ -43,37 +47,30 @@ public:
 	double getStructureMass() override;
 	double getTotalMass() override;
 	double getI_sp();
-
-	// Setters
-	void setStructureMass(double mass);
-	void setFuelMass(double mass);
-	void setI_sp(double isp);
-
-	// Helper function to update the total mass of the stage
-	void updateTotalMass();
+	void setMutex(std::mutex* mutex);
 };
 
 
 // Total Rocket
+template<typename T>
 class TotalRocket : public Rocket // The total rocket is obviously also a rocket
 {
 private:
-	std::queue<RocketStage*> totalRocketQueue;  // Queue managing rocket stages
-	RocketStage* payload = nullptr;  // Optional payload stage
+	std::queue<RocketStage*> totalRocketQueue;
+	// ^ A list that pieces together the individual components of the rocket (Can also hold objects derived from RocketParts class)
+	// Note: Build the rocket from bottom->top
 
 public:
-	TotalRocket();
-	~TotalRocket();  // Destructor declaration
 
-	double getFuelMass();
-	double getStructureMass();
-	double getTotalMass();
-	void addToRocket(RocketStage* rocketPartToAdd);
-	void detachStage(); // Corrected typo from 'detatchStage' to 'detachStage'
-	void setPayload(RocketStage* payloadStage);
-	double getDeltaV();
-	double getDeltaV(double fuelToBurn);
-	std::queue<RocketStage*> getStageQueue() const;
+	void addToRocket(RocketStage<T>* rocketPart2Add);
+	void detatchStage(); // Detaches the bottom stage (obviously)
+	double getStructureMass() override;
+	double getFuelMass() override;
+	double getTotalMass() override;
+	double getDeltaV(); // Returns the delta v if you burn all the fuel
+	double getDeltaV(double fuelToBurn); // Returns the delta v if you burn all the fuel
+	void setMutex(std::mutex* mutex) override;
+
 };
 
 #endif
