@@ -35,8 +35,8 @@ private:
 	double I_sp;
 
 public:
-	RocketStage();
-	RocketStage(double structW, double fuelW, double specImp);
+	//RocketStage();
+	RocketStage(double structW, double fuelW, double specImp, double totMass);
 
 	virtual ~RocketStage() override; // de-constructor
 	double getFuelMass() override;
@@ -58,7 +58,7 @@ public:
 class TotalRocket : public Rocket // The total rocket is obviously also a rocket
 {
 private:
-	std::queue<RocketStage*> totalRocketQueue;  // Queue managing rocket stages
+	std::queue<std::shared_ptr<RocketStage>> totalRocketQueue;  // Queue managing rocket stages
 	RocketStage* payload = nullptr;  // Optional payload stage
 
 public:
@@ -73,7 +73,7 @@ public:
 	void setPayload(RocketStage* payloadStage);
 	double getDeltaV();
 	double getDeltaV(double fuelToBurn);
-	const std::queue<RocketStage*>& getStageQueue() const;
+	std::queue<std::shared_ptr<RocketStage>> getStageQueue();
 };
 
 #endif

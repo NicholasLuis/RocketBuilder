@@ -5,9 +5,9 @@ Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};
 Rocket::~Rocket() {};
 
 // -----TOTAL STAGE CLASS-----
-RocketStage::RocketStage() {};
-RocketStage::RocketStage(double structW = 0.0, double fuelW = 0.0, double specImp = 0.0)
-	: stageStructureMass(structW), stageFuelMass(fuelW), I_sp(specImp), stageTotalMass(0.0) {
+//RocketStage::RocketStage() {};
+RocketStage::RocketStage(double structW = 0.0, double fuelW = 0.0, double specImp = 0.0, double totMass = 0.0)
+	: Rocket(), stageStructureMass(structW), stageFuelMass(fuelW), I_sp(specImp), stageTotalMass(totMass) {
 	updateTotalMass();
 }
 RocketStage::~RocketStage()
@@ -50,11 +50,10 @@ void RocketStage::updateTotalMass() {
 
 
 // -----TOTAL ROCKET CLASS-----
-TotalRocket::TotalRocket() : payload(nullptr) {}
+TotalRocket::TotalRocket() : Rocket(), payload(nullptr) {}
 TotalRocket::~TotalRocket() {
 	// Deallocate all stages in the queue
 	while (!totalRocketQueue.empty()) {
-		delete totalRocketQueue.front();  // Delete the object pointed to by the front pointer
 		totalRocketQueue.pop();           // Remove the front element from the queue
 	}
 	// Optionally, deallocate the payload if it exists
@@ -73,43 +72,44 @@ void TotalRocket::setPayload(RocketStage* payloadStage) {
 
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)
 {
-	totalRocketQueue.push(rocketPart2Add); // Adds a stage to the end
+	totalRocketQueue.push(std::shared_ptr<RocketStage> (rocketPart2Add)); // Adds a stage to the end
 }
 double TotalRocket::getDeltaV() // this calculates the delta V if you burn all the fuel from all of the remaing stages
 {
 	// makes a temporary copy of the RocketQueue and pops it so that it doesn't delete the rocket after doing the 
-	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
 	double totalDeltaV = 0, stageDeltaV = 0;
 
 	double stageISP, initialMass, finalMass, logMassRatio;
+	auto tempQueue = totalRocketQueue;
 
-	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	for (int i = 0; i < tempQueue.size(); i++)
 	{
-		stageISP = copyOfRocketQueue.front()->getI_sp();
-		initialMass = copyOfRocketQueue.front()->getTotalMass();
-		finalMass = copyOfRocketQueue.front()->getStructureMass(); // final mass of the stage is just the structure (all fuel burnt)
+		stageISP = tempQueue.front()->getI_sp();
+		initialMass = tempQueue.front()->getTotalMass();
+		finalMass = tempQueue.front()->getStructureMass(); // final mass of the stage is just the structure (all fuel burnt)
 		logMassRatio = std::log(initialMass / finalMass);
 		stageDeltaV = stageISP * 9.80665 * logMassRatio;
 
 		totalDeltaV += stageDeltaV;
 		// Calculates the delta V of each stage
-		copyOfRocketQueue.pop(); // Does not delete the objects inside since it only contains pointers
+		tempQueue.pop(); // Does not delete the objects inside since it only contains pointers
 
 	}
 	return totalDeltaV;
 }
 double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta V if you only burn a certain amount of fuel
 {
-	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
 	double totalDeltaV = 0, stageDeltaV = 0;
 
 	double stageISP, initialMass, finalMass, logMassRatio, fuelMassTracker = 0;
 
-	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	auto tempQueue = totalRocketQueue;
+
+	for (int i = 0; i < tempQueue.size(); i++)
 	{
-		stageISP = copyOfRocketQueue.front()->getI_sp();
-		initialMass = copyOfRocketQueue.front()->getTotalMass();
-		finalMass = copyOfRocketQueue.front()->getStructureMass(); // final mass of the stage is just the structure (all fuel burnt)
+		stageISP = tempQueue.front()->getI_sp();
+		initialMass = tempQueue.front()->getTotalMass();
+		finalMass = tempQueue.front()->getStructureMass(); // final mass of the stage is just the structure (all fuel burnt)
 		fuelMassTracker += finalMass - initialMass;
 		if (fuelMassTracker > fuelToBurn) { // Checks if we're burning more fuel than what is asked
 			// if true, it means that the stage has more fuel than what we need
@@ -127,27 +127,25 @@ double TotalRocket::getDeltaV( double fuelToBurn ) // this calculates the delta 
 			totalDeltaV += stageDeltaV;
 		}
 		// Calculates the delta V of each stage
-		copyOfRocketQueue.pop(); // Does not delete the objects inside since it only contains pointers
+		tempQueue.pop(); // Does not delete the objects inside since it only contains pointers
 	}
 	return totalDeltaV;
 }
 void TotalRocket::detachStage()
 {
-	totalRocketQueue.front()->~RocketStage();	// 1. Delete stage object (call de-constructor)
-	totalRocketQueue.pop();						// 2. remove stage from the queue
-
+	totalRocketQueue.pop();						// remove stage from the queue
 }
 
-const std::queue<RocketStage*>& TotalRocket::getStageQueue() const {
+std::queue<std::shared_ptr<RocketStage>> TotalRocket::getStageQueue() {
 	return totalRocketQueue;
 }
 
 double TotalRocket::getFuelMass() {
 	double totalFuelMass = 0.0;
-	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+	auto tempQueue = totalRocketQueue;
 
 	while (!tempQueue.empty()) {
-		RocketStage* stage = tempQueue.front();
+		RocketStage* stage = tempQueue.front().get();
 		totalFuelMass += stage->getFuelMass();
 		tempQueue.pop();
 	}
@@ -157,10 +155,10 @@ double TotalRocket::getFuelMass() {
 
 double TotalRocket::getStructureMass() {
 	double totalStructureMass = 0.0;
-	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+	auto tempQueue = totalRocketQueue;
 
 	while (!tempQueue.empty()) {
-		RocketStage* stage = tempQueue.front();
+		RocketStage* stage = tempQueue.front().get();
 		totalStructureMass += stage->getStructureMass();
 		tempQueue.pop();
 	}
@@ -170,10 +168,10 @@ double TotalRocket::getStructureMass() {
 
 double TotalRocket::getTotalMass() {
 	double combinedMass = 0.0;
-	std::queue<RocketStage*> tempQueue = totalRocketQueue; // Copy the original queue
+	auto tempQueue = totalRocketQueue;
 
 	while (!tempQueue.empty()) {
-		RocketStage* stage = tempQueue.front();
+		RocketStage* stage = tempQueue.front().get();
 		combinedMass += stage->getTotalMass();
 		tempQueue.pop();
 	}

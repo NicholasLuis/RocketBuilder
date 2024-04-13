@@ -253,6 +253,14 @@ void GuiManager::displayGui() {
     if (guiState & RocketPropertiesDialog) {
         ImGui::Begin("Rocket Properties", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         // Display properties of the rocket
+
+
+
+
+
+
+
+        // Dispalys
         if (ImGui::Button("Edit")) {
             guiState |= RocketBuilderDialog;  // Reopen rocket builder dialog
             guiState &= ~RocketPropertiesDialog; // Close properties dialog temporarily
@@ -291,46 +299,48 @@ void GuiManager::RocketBuilder() {
 
     // Ensure the rocket has the correct number of stages
     while (totalRocket->getStageQueue().size() < numStages) {
-        totalRocket->addToRocket(new RocketStage());
+        totalRocket->addToRocket(new RocketStage(0,0,0,0)); // Add stages as needed
     }
     while (totalRocket->getStageQueue().size() > numStages) {
-        totalRocket->detachStage();
+        totalRocket->detachStage(); // Remove stages in excess
     }
 
     if (ImGui::BeginTabBar("Stages Tab Bar")) {
         // Make a copy of the original queue for safe iteration
-        std::queue<RocketStage*> tempQueue = totalRocket->getStageQueue();
+        auto tempQueue = totalRocket->getStageQueue(); // Copy the queue
         std::vector<RocketStage*> tempStages; // Temporary storage to preserve stages
         double structMass = 0.0;
         double fuelMass = 0.0;
         double isp = 0.0;
 
-        while (!tempQueue.empty()) {
-            tempStages.push_back(tempQueue.front());
-            tempQueue.pop();
-        }
+        while (!tempQueue.empty()) { // Copy the queue to the temporary vector
+			RocketStage* stage = tempQueue.front().get(); 
+			tempStages.push_back(stage); 
+			tempQueue.pop(); 
+		}
 
         for (int i = 0; i < tempStages.size(); ++i) {
-            std::string tabName = "Stage " + std::to_string(i + 1);
-            if (ImGui::BeginTabItem(tabName.c_str())) {
+            std::string tabName = "Stage " + std::to_string(i + 1); // Tab name
+            if (ImGui::BeginTabItem(tabName.c_str())) { // Begin tab item
 
-                double structMass = tempStages[i]->getStructureMass(); 
-                double fuelMass = tempStages[i]->getFuelMass();
-                double isp = tempStages[i]->getI_sp();
+                // Get the mass values
+                double structMass = tempStages[i]->getStructureMass();  
+                double fuelMass = tempStages[i]->getFuelMass(); 
+                double isp = tempStages[i]->getI_sp(); 
 
                 ImGui::Text("Structural Mass (kg):");
                 if (ImGui::InputDouble("##StructuralMass", &structMass)) {
-                    tempStages[i]->setStructureMass(structMass);
+                    tempStages[i]->setStructureMass(structMass); // Update the stage Structure mass
                 }
 
                 ImGui::Text("Fuel Mass (kg):");
                 if (ImGui::InputDouble("##FuelMass", &fuelMass)) {
-                    tempStages[i]->setFuelMass(fuelMass);
+                    tempStages[i]->setFuelMass(fuelMass); // Update the stage Fuel mass
                 }
 
                 ImGui::Text("Specific Impulse (s):");
                 if (ImGui::InputDouble("##SpecificImpulse", &isp)) {
-                    tempStages[i]->setI_sp(isp);
+                    tempStages[i]->setI_sp(isp); // Update the stage Isp
                 }
 
                 ImGui::EndTabItem();
@@ -338,20 +348,20 @@ void GuiManager::RocketBuilder() {
         }
 
         // Re-populate the original queue with the updated stages
-        while (!totalRocket->getStageQueue().empty()) {
-            totalRocket->detachStage(); // Empty the original queue
-        }
-        for (RocketStage* stage : tempStages) {
-            totalRocket->addToRocket(stage);
-        }
+        //while (!totalRocket->getStageQueue().empty()) {
+        //    totalRocket->detachStage(); // Empty the original queue
+        //}
+        //for (RocketStage* stage : tempStages) {
+        //    totalRocket->addToRocket(stage); // Re-add the updated stages
+        //}
 
-        ImGui::EndTabBar();
+        ImGui::EndTabBar(); // End the tab bar
     }
 
     if (ImGui::Button("Cancel")) {
         // Clear the rocket and reset the dialog bit accordingly
-        while (!totalRocket->getStageQueue().empty()) {
-            totalRocket->detachStage();
+        while (!totalRocket->getStageQueue().empty()) { 
+            totalRocket->detachStage(); 
         }
         guiState &= ~RocketBuilderDialog; // Clear the Rocket Builder dialog bit
     }
