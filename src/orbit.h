@@ -5,10 +5,6 @@
 #include <mutex>
 # include <../src/global.h>
 
-const double PI = 3.141592653;
-const double MU = 3.986 * (10 ^ 5);// G * M_earth
-const double R_Earth = 6370; // radius of the earth
-
 // This class controls the orbit stuff
 // For example: given the initial position and deltaV, it will output possible orbits depending on user input
 class Orbit { // Always assume perfectly circular orbit
@@ -17,13 +13,16 @@ private:
 	std::vector<double> launchCoords; // Initializes a vector of size 2 (lat and long coordinates)
 	std::string toPrint;
 	double initialPos;
-	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
+	
+	static void log(const std::string& message);				// Log function for clean console output and control of console
+	template<typename T>
+	void log(const std::string& str, T& var);
 
 	double totalEnergy;
 public:
 	Orbit(); // Default constructor: assumes that the rocket is launching from earth
-
-	static void print(const std::string& message);    // Log function for clean console output and control of console
+	Orbit(double inputAltitude); // Constructor for when the rocket is already in orbit
+	Orbit(double inputAltitude, double inputInclination); // Constructor for when the rocket is already in orbit
 	void setRadius(double inputRadius);
 	void setCoords(double latitude, double longitude);
 	double getRadius();

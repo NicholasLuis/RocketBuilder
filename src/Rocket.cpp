@@ -1,5 +1,14 @@
 #include "Rocket.h"
 
+// Log Function to Control Log Messages
+void Rocket::log(const std::string& str) {
+	ConsoleManager::getInstance().log(str);
+}
+template<typename T>
+void Rocket::log(const std::string& str, T& var) {
+	ConsoleManager::getInstance().log(str, var);
+}
+
 // -------ROCKET (PARENT) CLASS--------
 Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};		// Constructor
 Rocket::~Rocket() {};															// Destructor
@@ -202,13 +211,4 @@ void TotalRocket::detachStage()
 // Get the queue of stages
 std::queue<std::shared_ptr<RocketStage>> TotalRocket::getStageQueue() {
 	return totalRocketQueue;									// returns the queue of stages
-}
-
-
-// Function to cleanly control the console_mtx and control the outputs to console
-// rather than having the same two lines dirty up the code.
-std::mutex Rocket::console_mtx;									// Console Mutex to control the shared resource internally
-void Rocket::log(const std::string& str) {						// Log function for clean console output and control of console
-	std::lock_guard<std::mutex> lock(console_mtx); 				// Lock the console
-	ConsoleManager::getInstance().log(str); 					// Log the message
 }

@@ -1,5 +1,4 @@
 // This file contains all global variables/functions
-# include <../src/booster.h>
 # include <../src/orbit.h>
 # include <../src/satellite.h>
 # include <../src/Rocket.h>

@@ -2,7 +2,6 @@
 # pragma once
 
 # include <../src/Rocket.h>
-# include <../src/booster.h>
 # include <../src/orbit.h>
 # include <../src/satellite.h>
 # include <../src/Rocket.h>
@@ -24,6 +23,10 @@ class GuiManager { 							    // GUI Manager class
 public:
     GuiManager();                               // Constructor
     ~GuiManager();                              // Destructor
+
+    static void log(const std::string& message);				// Log function for clean console output and control of console
+    template<typename T>
+    void log(const std::string& str, T& var);
 
     void start();                               // Start GUI
     void stop();                                // Stop GUI

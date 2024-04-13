@@ -12,7 +12,9 @@ class ConsoleManager {
 public:
     static ConsoleManager& getInstance();                           // Singleton instance
 
-    void log(const std::string& message);                           // Log a message to the console
+    void log(const std::string& message); // For logging messages without input
+    template<typename T>
+    void log(const std::string& message, T& var);
     void run();                                                     // Start the logging thread
     void stop();                                                    // Signal to terminate the logging thread
 

@@ -1,6 +1,15 @@
 // GuiManager.cpp
 # include <../src/GuiManager.h>
 
+// Log Function to Control Log Messages
+void GuiManager::log(const std::string& str) {
+    ConsoleManager::getInstance().log(str);
+}
+template<typename T>
+void GuiManager::log(const std::string& str, T& var) {
+    ConsoleManager::getInstance().log(str, var);
+}
+
 // Constructor
 GuiManager::GuiManager() : window(nullptr), totalRocket(new TotalRocket) {}
 
@@ -279,6 +288,8 @@ void GuiManager::displayGui() {
             ImGui::Text("Total Fuel Mass: %d", totalRocket->getFuelMass());                     // Display the total fuel mass
             ImGui::Text("DeltaV: %d", totalRocket->getDeltaV());                                // Display the deltaV
 
+
+            // INSERT MORE ROCKET PROPERTIES HERE
 
             // Dispalys
             if (ImGui::Button("Edit")) {

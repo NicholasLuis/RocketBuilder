@@ -14,8 +14,6 @@ protected:
 	double totalMass;											// total mass of the whole rocket
 	double fuelMass;											// total amount of fuel in the whole rocket
 	double structureMass;										// total mass of the structure of the whole rocket
-	static std::mutex console_mtx;								// Console Mutex to control the shared resource internally
-
 public:
 	Rocket();
 	virtual ~Rocket();
@@ -23,6 +21,8 @@ public:
 	virtual double getStructureMass() = 0;						// mass of the structure of the rocket
 	virtual double getTotalMass() = 0;							// total mass of the rocket
 	static void log(const std::string& message);				// Log function for clean console output and control of console
+	template<typename T>
+	void log(const std::string& str, T& var);
 };
 
 
