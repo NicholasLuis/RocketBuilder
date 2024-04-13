@@ -1,8 +1,8 @@
 #include "Rocket.h"
 
 // -------ROCKET CLASS--------
-Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};
-Rocket::~Rocket() {};
+//Rocket::Rocket() : fuelMass(0.0), structureMass(0.0), totalMass(0.0) {};
+//Rocket::~Rocket() {};
 
 // -----TOTAL STAGE CLASS-----
 RocketStage::RocketStage() {};
@@ -63,6 +63,36 @@ TotalRocket::~TotalRocket()
 	{
 		TotalRocket::detatchStage(); // delets pointers
 	}
+}
+double TotalRocket::getFuelMass()
+{
+	// makes a temporary copy of the RocketQueue and pops it so that it doesn't delete the rocket after doing the 
+	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
+	double fuelMassTracker = 0;
+	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	{
+		fuelMassTracker += copyOfRocketQueue.front()->getFuelMass();
+		copyOfRocketQueue.pop();
+	}
+	return fuelMassTracker;
+}
+double TotalRocket::getStructureMass()
+{
+	std::queue<RocketStage*> copyOfRocketQueue = totalRocketQueue;
+	double structMassTracker = 0;
+	for (int i = 0; i < copyOfRocketQueue.size(); i++)
+	{
+		structMassTracker += copyOfRocketQueue.front()->getStructureMass();
+		copyOfRocketQueue.pop();
+	}
+	return structMassTracker;
+}
+double TotalRocket::getTotalMass()
+{
+	double fuelMass = TotalRocket::getFuelMass();
+	double structMass = TotalRocket::getStructureMass();
+
+	return fuelMass + structMass;
 }
 
 void TotalRocket::addToRocket(RocketStage* rocketPart2Add)

@@ -18,8 +18,6 @@ protected:
 	static std::mutex console_mtx;  // Console Mutex to control the shared resource internally
 
 public:
-	Rocket();
-	~Rocket();
 	virtual double getFuelMass() = 0;
 	virtual double getStructureMass() = 0;
 	virtual double getTotalMass() = 0;
@@ -69,6 +67,11 @@ private:
 public:
 	TotalRocket(); // Constructor
 	~TotalRocket(); // De-constructor
+
+	double getFuelMass();
+	double getStructureMass();
+	double getTotalMass();
+
 	void addToRocket(RocketStage* rocketPart2Add);
 	void detatchStage(); // Detaches the bottom stage (obviously)
 	double getDeltaV(); // Returns the delta v if you burn all the fuel

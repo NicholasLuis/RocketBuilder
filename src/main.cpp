@@ -18,6 +18,31 @@ int main() {
     t3.join();
     t4.join();
 
+    // Console interaction
+        uint8_t numStages;
+        int input;
+
+        std::cout << "Enter the number of stages" << std::endl;
+        std::cin >> input;
+
+        while (input <= 0)
+        {
+            input = NULL;
+            std::cout << "That is an invalid input. Please enter the number of stages again." << std::endl;
+            std::cin >> input;
+        }
+        
+        numStages = input;
+        TotalRocket totalRocket;
+        
+        for (int i = 0; i < numStages; i++) // starts at i = 1 because the rocket was already inialized with the first stage
+        {
+            std::cout << "Test" << std::endl;
+        }
+
+
+    // End of console interaction
+
     while (guiManager.isRunning()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
