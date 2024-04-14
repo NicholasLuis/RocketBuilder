@@ -67,9 +67,14 @@ target_link_libraries(RocketBuilder
 )
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/premadeRockets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-# ^^^^^ Uncomment if we include shaders or assets
+#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/premadeRockets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#copy all files except Rocket_Data_Info.txt
+file(GLOB PREMADE_ROCKETS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/premadeRockets/*")
+foreach(file ${PREMADE_ROCKETS_FILES})
+    if(NOT file MATCHES "Rocket_Data_Info.txt$")
+        file(COPY ${file} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/premadeRockets")
+    endif()
+endforeach()
 
 add_custom_command(TARGET RocketBuilder POST_BUILD          	# Adds a post-build event to MyTest
     COMMAND ${CMAKE_COMMAND} -E copy_if_different       	# which executes "cmake - E copy_if_different..."
