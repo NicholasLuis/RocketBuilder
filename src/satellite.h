@@ -10,6 +10,7 @@
 #include <cstring>
 #include <stdexcept>
 
+
 class Satellite {
 public:
     Satellite(const std::string& filePath);                                                     // Constructor
