@@ -405,7 +405,18 @@ void GuiManager::displayGui() {
                     ImGui::Text("Delta V Available: %.2f km/s", deltaVAvailable);
                 }
                 else {
-                    ImGui::Text("Latitude of Launch Site: %.2f degrees", latitude);
+                    if (latitude > 0)
+                    {
+                        ImGui::Text("You can launch into orbits between: %.2f degrees and 90 degrees of inclination", latitude);
+                    }
+                    else if (latitude < 0)
+                    {
+                        ImGui::Text("You can launch into orbits between: %.2f degrees and -90 degrees of inclination", latitude);
+                    }
+                    else
+                    {
+                        ImGui::Text("You can only launch into inclinations of 0 degrees or 180 degrees");
+                    }
                     ImGui::Text("Amount of Fuel to Use: %.2f kg", fuelToUse);
                     ImGui::Text("Delta V Available for Launch: %.2f km/s", deltaVAvailable);
                 }
