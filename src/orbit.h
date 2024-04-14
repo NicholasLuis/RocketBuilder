@@ -13,12 +13,17 @@ private:
 	std::vector<double> launchCoords; // Initializes a vector of size 2 (lat and long coordinates)
 	std::string toPrint;
 	double initialPos;
-	
+
 	static void log(const std::string& message);				// Log function for clean console output and control of console
 	template<typename T>
 	void log(const std::string& str, T& var);
 
 	double totalEnergy;
+
+	double lastCalculatedAltitude;
+	double lastCalculatedVelocity;
+	double lastCalculatedInclination;
+	bool isLaunched;
 public:
 	Orbit(); // Default constructor: assumes that the rocket is launching from earth
 	Orbit(double inputAltitude); // Constructor for when the rocket is already in orbit
@@ -34,4 +39,14 @@ public:
 
 	double altitude;
 	double inclination;
+
+	double getCurrentAltitude();
+	void setAltitude(double inputAltitude);
+	double getCurrentVelocity();
+	void setVelocity(double inputVelocity);
+	double getCurrentInclination();
+	bool getLaunchStatus();
+
+	void setLaunchStatus(bool status);
+	void updateLastCalculatedValues(double altitude, double velocity, double inclination);
 };

@@ -19,7 +19,8 @@ void Orbit::log(const std::string& str, T& var) {
 
 
 
-Orbit::Orbit() : altitude(0.0), inclination(0.0), totalEnergy(0.0) // default constructor
+Orbit::Orbit() : altitude(0.0), inclination(0.0), totalEnergy(0.0), lastCalculatedAltitude(0.0),
+lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) // default constructor
 {
 	// Kennedy Space Center is the default launch site
 	launchCoords.push_back(28.5744); // Lattitude ( >0 for northern hemisphere and <0 for southern hemisphere)
@@ -28,7 +29,8 @@ Orbit::Orbit() : altitude(0.0), inclination(0.0), totalEnergy(0.0) // default co
 	initialPos = R_Earth;
 }
 
-Orbit::Orbit(double inputAltitude) : altitude(inputAltitude), inclination(0.0), totalEnergy(0.0) // parameterized constructor
+Orbit::Orbit(double inputAltitude) : altitude(inputAltitude), inclination(0.0), totalEnergy(0.0), lastCalculatedAltitude(0.0),
+lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) // parameterized constructor
 {
 	// Kennedy Space Center is the default launch site
 	launchCoords.push_back(28.5744); // Lattitude ( >0 for northern hemisphere and <0 for southern hemisphere)
@@ -37,7 +39,8 @@ Orbit::Orbit(double inputAltitude) : altitude(inputAltitude), inclination(0.0), 
 	initialPos = R_Earth + altitude;
 }
 
-Orbit::Orbit(double inputAltitude, double inputInclination) : altitude(inputAltitude), inclination(inputInclination), totalEnergy(0.0) // parameterized constructor
+Orbit::Orbit(double inputAltitude, double inputInclination) : altitude(inputAltitude), inclination(inputInclination), totalEnergy(0.0), lastCalculatedAltitude(0.0),
+lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) // parameterized constructor
 {
 	// Kennedy Space Center is the default launch site
 	launchCoords.push_back(28.5744); // Lattitude ( >0 for northern hemisphere and <0 for southern hemisphere)
@@ -125,3 +128,18 @@ void Orbit::inclinationPossibilities(double deltaV, double radius, int e) // rad
 	msg.str("");
 	msg.clear();
 }
+
+double Orbit::getCurrentAltitude() { return lastCalculatedAltitude; }
+void Orbit::setAltitude(double inputAltitude) { altitude = inputAltitude; }
+double Orbit::getCurrentVelocity() { return lastCalculatedVelocity; }
+void Orbit::setVelocity(double inputVelocity) { initialVelo = inputVelocity; }
+double Orbit::getCurrentInclination() { return lastCalculatedInclination; }
+bool Orbit::getLaunchStatus() { return isLaunched; }
+
+void Orbit::setLaunchStatus(bool status) { isLaunched = status; }
+void Orbit::updateLastCalculatedValues(double altitude, double velocity, double inclination) {
+	lastCalculatedAltitude = altitude;
+	lastCalculatedVelocity = velocity;
+	lastCalculatedInclination = inclination;
+}
+

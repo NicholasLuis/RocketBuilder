@@ -72,7 +72,7 @@ public:
 	double getFuelMass(); 										// Getter for fuel mass
 	double getStructureMass(); 									// Getter for structure mass
 	double getTotalMass(); 										// Getter for total mass
-
+	
 	void setPayload(RocketStage* payloadStage); 				// Set payload stage
 	void addToRocket(RocketStage* rocketPartToAdd); 			// Add rocket stage to the total rocket
 	void detachStage(); // Corrected typo from 'detatchStage' to 'detachStage'
