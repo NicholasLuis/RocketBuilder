@@ -71,7 +71,7 @@ double Orbit::getRadius()
 void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending on available delta V
 {
 	double finalVelo = initialVelo + deltaV;
-	log("Final Velo will be ", finalVelo);
+	log("Final Velo will be " + std::to_string(finalVelo));
 	double finalPos = sqrt((finalVelo * finalVelo) / MU);
 	std::ostringstream msg;
 	msg << "There is enough delta V to get to an altitude of " <<finalPos << " km";
