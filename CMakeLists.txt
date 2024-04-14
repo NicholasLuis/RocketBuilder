@@ -71,7 +71,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DI
 #copy all files except Rocket_Data_Info.txt
 file(GLOB PREMADE_ROCKETS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/premadeRockets/*")
 foreach(file ${PREMADE_ROCKETS_FILES})
-    if(NOT file MATCHES "Rocket_Data_Info.txt$")
+    if(NOT file MATCHES "Rocket_Data_Info.txt")
         file(COPY ${file} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/premadeRockets")
     endif()
 endforeach()
