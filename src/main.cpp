@@ -9,6 +9,28 @@ void log(const std::string& str, T& var) {
     ConsoleManager::getInstance().log(str, var);
 }
 
+// Function that ensures correct user input
+void inputCheck(double userInput, bool positiveCheck, bool integerCheck) // true means we want to check for it
+{
+    while (positiveCheck || integerCheck) // Repeats until there is a valid input
+    {
+        if ((userInput < 0) && (positiveCheck)) // checks if the input is a positive number
+        {
+            log("Make sure to input a positive number", userInput);
+        }
+        else if (userInput != std::floor(userInput) && (integerCheck)) // checks if it's an integer (Modulo % only works with integers)
+        {
+            log("Make sure to input an integer", userInput);
+        }
+        else 
+        {
+            // breaks the loop if the desired requirements are met
+            positiveCheck = false;
+            integerCheck = false;
+        }
+    }
+}
+
 
 int main() {
     GuiManager guiManager;                          // Create GuiManager object
@@ -44,16 +66,10 @@ int main() {
     TotalRocket totalRocket;
     Orbit orbit;
     uint8_t numStages;
-    int input;
+    double input;
 
     log("Enter the number of stages",input); 
-
-    while (input <= 0)
-    {
-        input = NULL;
-        log("That is an invalid input. Please enter the number of stages again.",input);
-    }
-
+    inputCheck(input, true, true); // Checks if the input is positive and integer
     numStages = input;
 
     for (int i = 0; i < numStages; i++)
@@ -62,16 +78,19 @@ int main() {
         std::ostringstream msg;
         msg << "Enter the structure mass of stage " << (i + 1) << ": ";
         log(msg.str(), inputStruct);
+        inputCheck(input, true, false); // Checks if the input is positive
         msg.str("");
         msg.clear();
 
         msg << "Enter the fuel mass of stage " << (i + 1) << ": ";
         log(msg.str(), inputFuel);
+        inputCheck(input, true, false); // Checks if the input is positive
         msg.str("");
         msg.clear();
 
         msg << "Enter the engines' specific impulse of stage " << (i + 1);
         log(msg.str(), inputImp);
+        inputCheck(input, true, false); // Checks if the input is positive
         msg.str("");
         msg.clear();
 
@@ -82,7 +101,7 @@ int main() {
     if (input == 1) // Possiblities if it were to launch from earth
     {
         log("Enter the lattitude of the launch site in degrees", input);
-        orbit.setCoords(input, NULL);
+        orbit.setCoords(input, NULL); // longitude = NULL b/c it does not affect rocket launches
 
         std::ostringstream msg;
         msg << "Enter the amount of fuel you would like to use. (The rocket curruently has " << totalRocket.getFuelMass() << " kg of fuel)";
@@ -108,10 +127,7 @@ int main() {
     else // it's in space already
     {
         log("What is the current altitude of the rocket (satellite)?", input);
-        while (input < 0) // Ensures the user enters a valid number
-        {
-            log("That is not a valid input. Make sure it is a number greater than 0", input);
-        }
+        inputCheck(input, true, false); // Checks if the input is positive
         orbit.setRadius(input);
 
         std::ostringstream msg;
