@@ -18,7 +18,7 @@ private:
 	template<typename T>
 	void log(const std::string& str, T& var);
 
-	double totalEnergy;
+	double eccentricity;
 
 	double lastCalculatedAltitude;
 	double lastCalculatedVelocity;
@@ -28,6 +28,7 @@ public:
 	Orbit(); // Default constructor: assumes that the rocket is launching from earth
 	Orbit(double inputAltitude); // Constructor for when the rocket is already in orbit
 	Orbit(double inputAltitude, double inputInclination); // Constructor for when the rocket is already in orbit
+	void setEccentricity(double inputEcc);
 	void setRadius(double inputRadius);
 	void setCoords(double latitude, double longitude);
 	double getRadius();
@@ -35,11 +36,12 @@ public:
 	void launchPossibilities(double deltaV);
 	void inclinationPossibilities(); // Launching from earth
 	void inclinationPossibilities(double deltaV, double velocity); // Inclination change (already in orbit)
-	void inclinationPossibilities(double deltaV, double radius, int e); // Inclination change (already in orbit)
+	void inclinationPossibilities(double deltaV, double radius, double e); // Inclination change (already in orbit)
 
 	double altitude;
 	double inclination;
 
+	double getEccentricity();
 	double getCurrentAltitude();
 	void setAltitude(double inputAltitude);
 	double getCurrentVelocity();

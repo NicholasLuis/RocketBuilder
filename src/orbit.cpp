@@ -4,7 +4,7 @@
 # define CONST
 const double PI = 3.141592653;
 const double MU = 3.986 * (10 ^ 5);// G * M_earth
-const double R_Earth = 6370; // radius of the earth
+const double R_Earth = 6371; // radius of the earth
 # endif // CONST
 
 // Log Function to Control Log Messages
@@ -19,7 +19,7 @@ void Orbit::log(const std::string& str, T& var) {
 
 
 
-Orbit::Orbit() : altitude(0.0), inclination(0.0), totalEnergy(0.0), lastCalculatedAltitude(0.0),
+Orbit::Orbit() : altitude(0.0), inclination(0.0), eccentricity(0.0), lastCalculatedAltitude(0.0),
 lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) // default constructor
 {
 	// Kennedy Space Center is the default launch site
@@ -29,7 +29,7 @@ lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) /
 	initialPos = R_Earth;
 }
 
-Orbit::Orbit(double inputAltitude) : altitude(inputAltitude), inclination(0.0), totalEnergy(0.0), lastCalculatedAltitude(0.0),
+Orbit::Orbit(double inputAltitude) : altitude(inputAltitude), inclination(0.0), eccentricity(0.0), lastCalculatedAltitude(0.0),
 lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) // parameterized constructor
 {
 	// Kennedy Space Center is the default launch site
@@ -39,7 +39,7 @@ lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) /
 	initialPos = R_Earth + altitude;
 }
 
-Orbit::Orbit(double inputAltitude, double inputInclination) : altitude(inputAltitude), inclination(inputInclination), totalEnergy(0.0), lastCalculatedAltitude(0.0),
+Orbit::Orbit(double inputAltitude, double inputInclination) : altitude(inputAltitude), inclination(inputInclination), eccentricity(0.0), lastCalculatedAltitude(0.0),
 lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) // parameterized constructor
 {
 	// Kennedy Space Center is the default launch site
@@ -47,6 +47,10 @@ lastCalculatedVelocity(0.0), lastCalculatedInclination(0.0), isLaunched(false) /
 	launchCoords.push_back(80.6520); // Longitude
 	initialVelo *= cos(launchCoords[0] * (PI / 180)); // Adjusts initial velocity depending on the lattitude
 	initialPos = R_Earth + altitude;
+}
+void Orbit::setEccentricity(double inputEcc)
+{
+	eccentricity = inputEcc;
 }
 void Orbit::setRadius(double inputRadius)
 {
@@ -70,11 +74,16 @@ double Orbit::getRadius()
 
 void Orbit::launchPossibilities(double deltaV) // Possible orbit radii depending on available delta V
 {
-	double finalVelo = initialVelo + deltaV;
-	log("Final Velo will be " + std::to_string(finalVelo));
-	double finalPos = sqrt((finalVelo * finalVelo) / MU);
 	std::ostringstream msg;
-	msg << "There is enough delta V to get to an altitude of " <<finalPos << " km";
+
+	double finalVelo = initialVelo + (deltaV/1000);
+	msg << "Final velocity is " << finalVelo << " km/s";
+	log(msg.str());
+	msg.str("");
+	msg.clear();
+
+	double finalPos = (MU / (finalVelo * finalVelo / 1000) ) - R_Earth;
+	msg << "There is enough delta V to get to an altitude of " << (finalPos) << " km";
 	log(msg.str());
 	msg.str("");
 	msg.clear();
@@ -101,7 +110,7 @@ void Orbit::inclinationPossibilities() // Possible launch inclinations from eart
 	msg.clear();
 }
 
-void Orbit::inclinationPossibilities(double deltaV, double velocity) // must enter velocity as it crosses the equitorial plane
+void Orbit::inclinationPossibilities(double deltaV, double velocity)
 {
 	std::ostringstream msg;
 	double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180 / PI);
@@ -111,25 +120,20 @@ void Orbit::inclinationPossibilities(double deltaV, double velocity) // must ent
 	msg.clear();
 }
 
-void Orbit::inclinationPossibilities(double deltaV, double radius, int e) // radius assuming circular orbit
+void Orbit::inclinationPossibilities(double deltaV, double velocity, double e) // must enter velocity as it crosses the equitorial plane
 {
 	std::ostringstream msg;
-	if (e != 0)
-	{
-		msg << "The eccentricity must be 0. Solution may not be accurate otherwise";
-	}
-	else
-	{
-		double velocity = sqrt(MU / (radius * radius));
-		double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180 / PI);
-		msg << "The satellite can change its inclination by " << delta_i << " degrees";
-	}
+
+	double delta_i = 2.0 * asin(0.5 * deltaV / velocity) * (180 / PI);
+	msg << "The satellite can change its inclination by " << delta_i << " degrees";
+
 	log(msg.str());
 	msg.str("");
 	msg.clear();
 }
 
 double Orbit::getCurrentAltitude() { return lastCalculatedAltitude; }
+double Orbit::getEccentricity() { return eccentricity;  }
 void Orbit::setAltitude(double inputAltitude) { altitude = inputAltitude; }
 double Orbit::getCurrentVelocity() { return lastCalculatedVelocity; }
 void Orbit::setVelocity(double inputVelocity) { initialVelo = inputVelocity; }

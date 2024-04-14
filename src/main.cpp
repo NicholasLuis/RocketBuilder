@@ -121,14 +121,15 @@ int main() {
         log(msg.str());
         msg.str("");
         msg.clear();
+        orbit.setVelocity(input);
         orbit.launchPossibilities(totalRocket.getDeltaV(input)); // prints out the launch possibilities 
         orbit.inclinationPossibilities(); // prints out the possible orbit inclinations attainable from 
     }
     else // it's in space already
     {
-        log("What is the current altitude of the rocket (satellite)?", input);
+        log("What is the current eccentricity of the rocket orbit?", input);
         inputCheck(input, true, false); // Checks if the input is positive
-        orbit.setRadius(input);
+        orbit.setEccentricity(input);
 
         std::ostringstream msg;
         msg << "Enter the amount of fuel you would like to use. (The rocket curruently has "
@@ -148,8 +149,24 @@ int main() {
         log(msg.str());
         msg.str("");
         msg.clear();
-        orbit.launchPossibilities(totalRocket.getDeltaV(input)); // prints out the launch possibilities 
-        orbit.inclinationPossibilities(totalRocket.getDeltaV(input), orbit.getRadius()); // prints out the possible orbit inclinations attainable from its current orbit
+
+        if (orbit.getEccentricity() == 0)
+        {
+            log("What is the current velocity of the rocket (satellite) in km/s?", input);
+            inputCheck(input, true, false); // Checks if the input is positive
+            orbit.setVelocity(input);
+            orbit.inclinationPossibilities(totalRocket.getDeltaV(input) / 1000, input);
+            orbit.launchPossibilities(totalRocket.getDeltaV(input));
+
+        }
+        else if ((orbit.getEccentricity() > 0) && (orbit.getEccentricity() < 1))
+        {
+            log("What is the velocity of the rocket (satellite) at periapsis in km/s?", input);
+            inputCheck(input, true, false); // Checks if the input is positive
+            orbit.setVelocity(input);
+            orbit.inclinationPossibilities(totalRocket.getDeltaV(input)/1000, input, orbit.getEccentricity());
+        }
+    
     }
 
     // End of console interaction ------------------------------------------------

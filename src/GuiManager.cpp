@@ -367,8 +367,7 @@ void GuiManager::displayGui() {
                     double structuralMass = totalRocket->getStructureMass();
 
                     if (inOrbit) {
-                        double logTerm = std::log((initialFuel + structuralMass) / structuralMass);
-                        deltaVAvailable = totalRocket->getDeltaV() * logTerm;
+                        deltaVAvailable = totalRocket->getDeltaV();
                     }
                     else {
                         const double PI = 3.141592653589793;
@@ -377,8 +376,7 @@ void GuiManager::displayGui() {
                         double v_circ = sqrt(MU / (R_Earth + altitude));
                         double v_rot = R_Earth * cos(latitude * PI / 180) * 2 * PI / 86400;
                         double v_total = v_circ + v_rot;
-                        double logTerm = std::log((initialFuel + structuralMass) / structuralMass);
-                        deltaVAvailable = totalRocket->getDeltaV() * logTerm;
+                        deltaVAvailable = totalRocket->getDeltaV();
                         deltaVAvailable = std::min(deltaVAvailable, v_total);
                     }
 
