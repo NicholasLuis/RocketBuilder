@@ -106,6 +106,16 @@ std::vector<fs::path> GuiManager::listTLEFiles(const fs::path& directory) {
     return files;                                                                   // Return the vector of files
 } 
 
+std::vector<fs::path> GuiManager::listFiles(const fs::path& directory) {
+    std::vector<fs::path> files;                                                    // Vector to store the files
+    for (const auto& entry : fs::directory_iterator(directory)) {                   // Iterate over the directory
+        if (entry.is_regular_file()) {       
+            files.push_back(entry.path());                                          // Add the file to the vector
+        }
+    }
+    return files;                                                                   // Return the vector of files
+}
+
 // Sanitize the file path
 std::string GuiManager::sanitizeFilePath(const std::string& input) { 
     std::string path = input;
@@ -121,12 +131,12 @@ std::string GuiManager::sanitizeFilePath(const std::string& input) {
 // Display the GUI
 void GuiManager::displayGui() {
     // Poll and handle events (inputs, window resize, etc.)
-    glfwPollEvents(); 
+    glfwPollEvents();
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame(); 
+    ImGui::NewFrame();
 
 
     // ____________________________________________________________
@@ -195,7 +205,7 @@ void GuiManager::displayGui() {
                 guiState &= ~SatFileListDialog;                                                             // Clear the Sat File List dialog bit
             }
             ImGui::EndPopup();                                                                              // End the popup modal
-        } 
+        }
     }
 
 
@@ -234,7 +244,9 @@ void GuiManager::displayGui() {
     // ROCKET BUILDING PROGRAM
     if (ImGui::Begin("Rocket Builder")) {           // Begin the main "Rocket Builder" window
         if (ImGui::Button("Load Rocket")) {         // Button to load a rocket
-            guiState |= LoadRocketDialog;           // Set the Load Rocket dialog bit
+            RocketFiles = listFiles("./premadeRockets");  // List files in the premadeRockets directory
+            guiState |= LoadRocketDialog;  // Set the Load Rocket dialog bit
+            
         }
         if (ImGui::Button("Build from scratch")) {
             guiState |= RocketBuilderDialog;        // Set the Build Rocket dialog bit
@@ -253,56 +265,46 @@ void GuiManager::displayGui() {
         ImGui::End();
     }
 
-    // Dialog for loading a rocket
+
     if (guiState & LoadRocketDialog) {
         ImGui::Begin("Load Rocket", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-        // UI elements for loading a rocket could go here
-
-
-
-
-
-
-        // ---------------
-
-        if (ImGui::Button("Load")) { // Load button
-            // Implement the actual loading logic here
-
-
-
-
-
-            guiState &= ~LoadRocketDialog; 
+        for (const auto& file : RocketFiles) {
+            if (ImGui::Button(file.filename().string().c_str())) {
+                RocketLoader(file);  // Load the rocket configuration from the file
+                guiState |= RocketPropertiesDialog;  // Open rocket properties dialog to display loaded rocket
+                guiState &= ~LoadRocketDialog;  // Close the load dialog
+                break;  // Exit the loop once a file is clicked
+            }
         }
         if (ImGui::Button("Cancel")) {
-            guiState &= ~LoadRocketDialog; // Clear the bit after use
+            guiState &= ~LoadRocketDialog;  // Close the load dialog
         }
-        ImGui::End();
+            ImGui::End();
     }
 
     // Dialog for displaying and managing rocket properties
-    if (guiState & RocketPropertiesDialog) {
+    if (guiState & RocketPropertiesDialog && totalRocket) {
         if (ImGui::Begin("Built Rocket", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {            // Begin the "Built Rocket" window
             ImGui::SetWindowSize("Built Rocket", ImVec2(700, 400), ImGuiCond_FirstUseEver);     // Adjust size as needed
-            
+
             // Main Rocket Properties
-            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Main Rocket Properties:"); 
-            ImGui::Separator(); 
-            ImGui::Text("Rocket Name: %s", totalRocket->getName().c_str()); 
-            ImGui::Text("Total Mass: %.2f kg", totalRocket->getTotalMass()); 
-            ImGui::Text("Total Structure Mass: %.2f kg", totalRocket->getStructureMass()); 
-            ImGui::Text("Total Fuel Mass: %.2f kg", totalRocket->getFuelMass()); 
-            ImGui::Text("DeltaV: %.2f km/s", totalRocket->getDeltaV()); 
-            ImGui::Separator(); 
-            ImGui::Spacing(); 
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Main Rocket Properties:");
+            ImGui::Separator();
+            ImGui::Text("Rocket Name: %s", totalRocket->getName().c_str());
+            ImGui::Text("Total Mass: %.2f kg", totalRocket->getTotalMass());
+            ImGui::Text("Total Structure Mass: %.2f kg", totalRocket->getStructureMass());
+            ImGui::Text("Total Fuel Mass: %.2f kg", totalRocket->getFuelMass());
+            ImGui::Text("DeltaV: %.2f km/s", totalRocket->getDeltaV());
+            ImGui::Separator();
+            ImGui::Spacing();
 
             // Stages Overview
-            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Stages Overview:"); 
-            ImGui::Separator(); 
-            if (ImGui::BeginTable("StagesTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) { 
-                ImGui::TableSetupColumn("Stage"); 
-                ImGui::TableSetupColumn("Total Mass (kg)"); 
-                ImGui::TableSetupColumn("Structure Mass (kg)"); 
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), "Stages Overview:");
+            ImGui::Separator();
+            if (ImGui::BeginTable("StagesTable", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                ImGui::TableSetupColumn("Stage");
+                ImGui::TableSetupColumn("Total Mass (kg)");
+                ImGui::TableSetupColumn("Structure Mass (kg)");
                 ImGui::TableSetupColumn("Fuel Mass (kg)");
                 ImGui::TableSetupColumn("ISP (s)");
                 ImGui::TableHeadersRow();
@@ -431,6 +433,8 @@ void GuiManager::displayGui() {
 
 
 
+
+
     //______________________________________________________________
     // ENDING
 
@@ -457,8 +461,8 @@ void GuiManager::RocketBuilder() {
     numStages = std::max(1, numStages);                                                         // Ensure at least one stage
 
     // Ensure the rocket has the correct number of stages
-    while (totalRocket->getStageQueue().size() < numStages) { 
-        totalRocket->addToRocket(new RocketStage(0,0,0,0));                                     // Add stages as needed
+    while (totalRocket->getStageQueue().size() < numStages) {
+        totalRocket->addToRocket(new RocketStage(0, 0, 0, 0));                                     // Add stages as needed
     }
     while (totalRocket->getStageQueue().size() > numStages) {
         totalRocket->detachStage();                                                             // Remove stages in excess
@@ -473,19 +477,19 @@ void GuiManager::RocketBuilder() {
         double isp = 0.0;
 
         while (!tempQueue.empty()) {                                                            // Copy the queue to the temporary vector
-			RocketStage* stage = tempQueue.front().get(); 
-			tempStages.push_back(stage); 
-			tempQueue.pop(); 
-		}
+            RocketStage* stage = tempQueue.front().get();
+            tempStages.push_back(stage);
+            tempQueue.pop();
+        }
 
         for (int i = 0; i < tempStages.size(); ++i) {
             std::string tabName = "Stage " + std::to_string(i + 1);                              // Tab name
             if (ImGui::BeginTabItem(tabName.c_str())) {                                          // Begin tab item
 
                 // Get the mass values
-                double structMass = tempStages[i]->getStructureMass(); 
-                double fuelMass = tempStages[i]->getFuelMass(); 
-                double isp = tempStages[i]->getI_sp(); 
+                double structMass = tempStages[i]->getStructureMass();
+                double fuelMass = tempStages[i]->getFuelMass();
+                double isp = tempStages[i]->getI_sp();
 
                 ImGui::Text("Structural Mass (kg):");
                 if (ImGui::InputDouble("##StructuralMass", &structMass)) {
@@ -511,9 +515,41 @@ void GuiManager::RocketBuilder() {
 
     if (ImGui::Button("Cancel")) {
         // Clear the rocket and reset the dialog bit accordingly
-        while (!totalRocket->getStageQueue().empty()) { 
+        while (!totalRocket->getStageQueue().empty()) {
             totalRocket->detachStage();                                                          // Detach and deconstruct all stages
         }
         guiState &= ~RocketBuilderDialog;                                                        // Clear the Rocket Builder dialog bit
     }
+}
+
+void GuiManager::RocketLoader(const fs::path& filePath) {
+    std::ifstream file(filePath);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filePath << std::endl;
+        return;
+    }
+
+    std::string line;
+    std::getline(file, line);  // Read the rocket name
+    std::string rocketName = line;
+
+    std::getline(file, line);  // Read the number of stages
+    int numStages = std::stoi(line);
+
+    totalRocket->setName(rocketName);
+
+    for (int i = 0; i < numStages; ++i) {
+        std::getline(file, line);
+        double structMass = std::stod(line);
+
+        std::getline(file, line);
+        double fuelMass = std::stod(line);
+
+        std::getline(file, line);
+        double isp = std::stod(line);
+
+        totalRocket->addToRocket(new RocketStage(structMass, fuelMass, isp));
+    }
+
+    file.close();
 }

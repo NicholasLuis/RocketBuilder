@@ -32,6 +32,7 @@ public:
     void stop();                                // Stop GUI
     void run();                                 // Run GUI
     void RocketBuilder();                       // Rocket Builder GUI
+    void RocketLoader(const fs::path & filePath); // Rocket Builder GUI
     bool isRunning() const {                    // Check if GUI is running
         return running;
     }
@@ -51,10 +52,12 @@ private:
         TleDisplayDialog = 1 << 4,              // Bit 4: TLE display dialog
         LoadRocketDialog = 1 << 5,              // Bit 5: Rocket load dialog
         SatFileListDialog = 1 << 6,             // Bit 6: Satellite file list dialog
+        includeRocketDialog = 1 << 7,           // Bit 7: Include rocket dialog
     };
     int guiState = noDialog;
 
     std::vector<fs::path> tleFiles;                         // List of TLE files in the directory
+    std::vector<fs::path> RocketFiles;
     std::optional<Satellite> loadedSatellite;               // Satellite loaded from TLE file
     TotalRocket* totalRocket;                                // TotalRocket object to manage rocket and satellite objects
     Orbit* orbit;											// Orbit object to manage orbit calculations
@@ -64,6 +67,7 @@ private:
     void cleanup();								                        // Cleanup GUI
     void displayFiles(const std::vector<fs::path>& files); 	            // Display files in the directory
     std::vector<fs::path> listTLEFiles(const fs::path& directory);      // List TLE files in the directory
+    std::vector<fs::path> listFiles(const fs::path& directory);         // List files in the directory
     std::string sanitizeFilePath(const std::string& input); 			// Sanitize file path
     void displayGui(); 						                            // Display GUI
 };
