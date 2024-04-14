@@ -155,10 +155,10 @@ double TotalRocket::getDeltaV() // this calculates the delta V if you burn all t
 	for (int i = 0; i < tempQueue.size(); i++)	
 	{
 		stageISP = tempQueue.front()->getI_sp();			// ISP of the stage
-		initialMass = tempQueue.front()->getTotalMass();	// initial mass of the stage is the total mass
-		finalMass = tempQueue.front()->getStructureMass();	// final mass of the stage is just the structure (all fuel burnt)
+		initialMass = TotalRocket::getTotalMass();	// initial mass of the stage is the total mass
+		finalMass = initialMass - TotalRocket::getFuelMass();	// final mass of the stage is just the structure (all fuel burnt)
 		logMassRatio = std::log(initialMass / finalMass);	// calculates the log of the mass ratio
-		stageDeltaV = stageISP * 9.80665 * logMassRatio; 	// calculates the delta V of the stage
+		stageDeltaV = stageISP * 9.80665 * logMassRatio / 1000; 	// calculates the delta V of the stage
 
 		totalDeltaV += stageDeltaV; 						// adds the delta V of the stage to the total delta V
 		// Calculates the delta V of each stage
@@ -180,8 +180,8 @@ double TotalRocket::getDeltaV( double fuelToBurn )			// this calculates the delt
 	for (int i = 0; i < tempQueue.size(); i++)
 	{
 		stageISP = tempQueue.front()->getI_sp(); 			// ISP of the stage	
-		initialMass = tempQueue.front()->getTotalMass(); 	// initial mass of the stage is the total mass
-		finalMass = tempQueue.front()->getStructureMass();	// final mass of the stage is just the structure (all fuel burnt)
+		initialMass = TotalRocket::getTotalMass();	// initial mass of the stage is the total mass
+		finalMass = initialMass - TotalRocket::getFuelMass();	// final mass of the stage is just the structure (all fuel burnt)
 		fuelMassTracker += finalMass - initialMass; 		// keeps track of the fuel mass
 		if (fuelMassTracker > fuelToBurn) {					// Checks if we're burning more fuel than what is asked
 			// if true, it means that the stage has more fuel than what we need
