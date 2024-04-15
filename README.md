@@ -23,7 +23,7 @@ In the Rocket Builder menu, choose to either _Select from one of the Pre-Made Ro
   1. Premade Rockets:
      Pick the file that corresponds to the rocket you wish to use.
 
-       _Tip: You can make your own premade rocket by creating a .txt file and following the format given in ./ReferenceMaterial/Rocket_Data_Info.txt_
+       _Tip: You can make your own premade rocket by creating a .txt file and following the format given in .../ReferenceMaterial/Rocket_Data_Info.txt_
 
      
   2. Build your Own:
@@ -54,3 +54,9 @@ In TLE loader, choose either from _Load TLE from File_ or _Select from available
   2. Select from available TLE data
    
      a. Choose from one of the example data files to see the data associated with that satellite
+
+
+
+**### Notes
+ALl of the custom-built functions that this program needs is in a static library whose source code is inaccessible.
+The original source code for these functions can be found in the file names beginning with "Archived" located in the _src_ folder.**
