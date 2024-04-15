@@ -28,13 +28,19 @@ In the Rocket Builder menu, choose to either _Select from one of the Pre-Made Ro
      
   2. Build your Own:
 
-     a. Choose the number of stages you want your rocket to have (A tab will open up for every stage)
+     a. Name the rocket
 
-     b. Enter the values for the structural mass, fuel mass, and the engine's specific impulse for every stage
+     b. Choose the number of stages you want your rocket to have (A tab will open up for every stage)
+
+     c. Enter the values for the structural mass, fuel mass, and the engine's specific impulse for each stage
 
        _Tip: You can simulate the final payload by including a fuel weight of 0 in the final stage_
 
-     c. Using the delta V information from the rocket (or the remaining stages), the computer will determine some potential orbital maneuvers
+     d. Click _done_
+
+     e. Next, choose how much fuel you want to expend and some optional additional parameters such as the orbit altitude or the launch site location.
+
+     f. Click _calculate_. The computer will output the delta-V obtained from burning the specified amount of fuel as well as possible orbit manuever options.
 
 
 ### TLE Loader
