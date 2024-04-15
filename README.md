@@ -56,8 +56,7 @@ In TLE loader, choose either from _Load TLE from File_ or _Select from available
      a. Choose from one of the example data files to see the data associated with that satellite
 
 
-**
-### Notes
-ALl of the custom-built functions that this program needs is in a static library whose source code is inaccessible.
-The original source code for these functions can be found in the file names beginning with "Archived" located in the _src_ folder.
-**
+
+### **Notes**
+**All of the custom-built functions that this program needs is in a static library whose source code is inaccessible.**
+**The original source code for these functions can be found in the file names beginning with "Archived" located in the _src_ folder.**
