@@ -24,16 +24,16 @@ set(GL_STATIC_LIBRARIES "${CMAKE_SOURCE_DIR}/lib/glew32sd.lib;${CMAKE_SOURCE_DIR
 add_executable(${CMAKE_PROJECT_NAME} # Source code file
     src/main.cpp
     src/satellite.h
-    src/satellite.cpp
+#    src/satellite.cpp
     src/orbit.h
-    src/orbit.cpp
+#    src/orbit.cpp
     src/Rocket.h
-    src/Rocket.cpp
+#    src/Rocket.cpp
     src/global.h
     src/GuiManager.h
-    src/GuiManager.cpp
+#    src/GuiManager.cpp
     src/ConsoleManager.h
-    src/ConsoleManager.cpp
+#    src/ConsoleManager.cpp
     lib/stb_image.h
     lib/tiny_obj_loader.h
     lib/imgui/imconfig.h
@@ -57,6 +57,8 @@ add_executable(${CMAKE_PROJECT_NAME} # Source code file
 target_link_libraries(RocketBuilder
     ${OPENGL_gl_LIBRARY} ${GL_STATIC_LIBRARIES}
 )
+
+target_link_libraries(${CMAKE_PROJECT_NAME} ${CMAKE_SOURCE_DIR}/lib/RocketBuilder_Library.lib)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 #file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/premadeRockets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
